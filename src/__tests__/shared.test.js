@@ -1,5 +1,5 @@
 /**
- * MusicShield — Tests: shared/constants.js & shared/storage.js
+ * Sakina — Tests: shared/constants.js & shared/storage.js
  */
 
 import {

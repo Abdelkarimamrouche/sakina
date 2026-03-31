@@ -1,5 +1,5 @@
 /**
- * MusicShield — Tests: YamNetClassifier (score interpretation)
+ * Sakina — Tests: YamNetClassifier (score interpretation)
  *
  * We test _interpretScores() in isolation without loading the actual model.
  * The full classify() method requires TensorFlow.js — tested in integration tests.

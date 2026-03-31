@@ -1,14 +1,5 @@
 /**
- * MusicShield — Webpack Configuration
- *
- * Builds four separate bundles:
- *   1. content.js    — injected into YouTube tabs
- *   2. background.js — MV3 service worker
- *   3. popup.js      — extension popup
- *   4. options.js    — options page
- *
- * TensorFlow.js is bundled INTO content.js to ensure it works
- * within the extension's Content Security Policy.
+ * Sakina — Webpack Configuration (v1.3 — i18n)
  */
 
 const path = require('path');
@@ -19,7 +10,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 const isDev = process.env.NODE_ENV === 'development';
 const ROOT = __dirname;
-const SRC = path.join(ROOT, 'src');
+const SRC  = path.join(ROOT, 'src');
 const DIST = path.join(ROOT, 'dist');
 
 module.exports = {
@@ -27,10 +18,11 @@ module.exports = {
   devtool: isDev ? 'inline-source-map' : false,
 
   entry: {
-    content: path.join(SRC, 'content/index.js'),
+    content:    path.join(SRC, 'content/index.js'),
     background: path.join(SRC, 'background/service-worker.js'),
-    popup: path.join(SRC, 'popup/popup.js'),
-    options: path.join(SRC, 'options/options.js'),
+    popup:      path.join(SRC, 'popup/popup.js'),
+    options:    path.join(SRC, 'options/options.js'),
+    about:      path.join(SRC, 'about/about.js'),
   },
 
   output: {
@@ -41,7 +33,6 @@ module.exports = {
 
   module: {
     rules: [
-      // JavaScript / ES modules
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -57,8 +48,6 @@ module.exports = {
           },
         },
       },
-
-      // CSS
       {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
@@ -69,7 +58,7 @@ module.exports = {
   resolve: {
     extensions: ['.js'],
     alias: {
-      '@shared': path.join(SRC, 'shared'),
+      '@shared':  path.join(SRC, 'shared'),
       '@content': path.join(SRC, 'content'),
     },
   },
@@ -85,25 +74,19 @@ module.exports = {
         },
       }),
     ],
-    // Don't split chunks — Chrome extensions need self-contained bundles
-    // (or you need to declare all chunks in manifest web_accessible_resources)
     splitChunks: false,
   },
 
   plugins: [
-    new MiniCssExtractPlugin({
-      filename: '[name].css',
-    }),
+    new MiniCssExtractPlugin({ filename: '[name].css' }),
 
-    // Copy popup HTML
     new HtmlWebpackPlugin({
       template: path.join(SRC, 'popup/index.html'),
       filename: 'popup.html',
       chunks: ['popup'],
-      inject: false, // We manage script tags manually
+      inject: false,
     }),
 
-    // Copy options HTML
     new HtmlWebpackPlugin({
       template: path.join(SRC, 'options/index.html'),
       filename: 'options.html',
@@ -111,18 +94,23 @@ module.exports = {
       inject: false,
     }),
 
+    new HtmlWebpackPlugin({
+      template: path.join(SRC, 'about/about.html'),
+      filename: 'about.html',
+      chunks: ['about'],
+      inject: false,
+    }),
+
     new CopyPlugin({
       patterns: [
-        // Manifest
         { from: 'manifest.json', to: DIST },
 
-        // Icons (you need to provide actual PNG files)
-        { from: 'assets/icons', to: path.join(DIST, 'icons'), noErrorOnMissing: true },
+        // ── i18n locale files (REQUIRED for chrome.i18n to work) ──
+        { from: '_locales', to: path.join(DIST, '_locales') },
 
-        // YAMNet model files (bundled locally for reliability)
-        { from: 'assets/yamnet', to: path.join(DIST, 'yamnet') },
+        { from: 'assets/icons',  to: path.join(DIST, 'icons'),  noErrorOnMissing: true },
+        { from: 'assets/yamnet', to: path.join(DIST, 'yamnet'), noErrorOnMissing: true },
 
-        // TF.js WASM backend files (for non-WebGL environments)
         {
           from: 'node_modules/@tensorflow/tfjs-backend-wasm/dist/*.wasm',
           to: path.join(DIST, 'tfjs/[name][ext]'),
@@ -132,6 +120,5 @@ module.exports = {
     }),
   ],
 
-  // Don't bundle Node.js builtins — this is a browser extension
   externals: {},
 };

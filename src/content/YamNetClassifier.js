@@ -1,5 +1,5 @@
 /**
- * MusicShield — YamNetClassifier
+ * Sakina — YamNetClassifier
  *
  * Loads YAMNet as a SavedModel/GraphModel from TFHub via tf.loadGraphModel().
  * No npm package required — model is fetched directly from TF Hub and cached
@@ -82,13 +82,13 @@ export class YamNetClassifier {
     const MAX_ATTEMPTS = 3;
 
     try {
-      console.info(`[MusicShield:yamnet] Loading model, attempt ${attempt + 1}...`);
+      console.info(`[Sakina:yamnet] Loading model, attempt ${attempt + 1}...`);
 
       // Select the fastest available backend
       try {
         await tf.setBackend('webgl');
       } catch {
-        console.warn('[MusicShield:yamnet] WebGL unavailable, falling back to cpu');
+        console.warn('[Sakina:yamnet] WebGL unavailable, falling back to cpu');
         await tf.setBackend('cpu');
       }
       await tf.ready();
@@ -104,12 +104,12 @@ export class YamNetClassifier {
       await this._warmup();
 
       console.info(
-        `[MusicShield:yamnet] Model ready. Backend: ${tf.getBackend()}`
+        `[Sakina:yamnet] Model ready. Backend: ${tf.getBackend()}`
       );
 
     } catch (err) {
       this._loadError = err;
-      console.error(`[MusicShield:yamnet] Load attempt ${attempt + 1} failed:`, err);
+      console.error(`[Sakina:yamnet] Load attempt ${attempt + 1} failed:`, err);
 
       if (attempt + 1 < MAX_ATTEMPTS) {
         const delay = 1000 * Math.pow(2, attempt);
@@ -133,7 +133,7 @@ export class YamNetClassifier {
     } finally {
       silentFrame.dispose();
     }
-    console.info('[MusicShield:yamnet] Warmup complete.');
+    console.info('[Sakina:yamnet] Warmup complete.');
   }
 
   // ─── Classification ────────────────────────────────────────────────────────
@@ -255,7 +255,7 @@ export class YamNetClassifier {
   dispose() {
     this._model?.dispose();
     this._model = null;
-    console.info('[MusicShield:yamnet] Disposed.');
+    console.info('[Sakina:yamnet] Disposed.');
   }
 }
 

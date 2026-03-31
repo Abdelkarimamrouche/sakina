@@ -1,0 +1,107 @@
+{
+  "ext_name":                { "message": "Sakina — Müziği Otomatik Sustur" },
+  "ext_short_name":          { "message": "Sakina" },
+  "ext_description":         { "message": "YouTube, Instagram, Facebook ve TikTok'ta yapay zeka kullanarak müziği otomatik olarak algılar ve susturur. Konuşma ve ortam sesleri normal çalar." },
+
+  "toggle_enable":           { "message": "Sakina'i Etkinleştir" },
+  "toggle_disable":          { "message": "Sakina'i Devre Dışı Bırak" },
+
+  "status_loading_title":    { "message": "Yapay Zeka Modeli Yükleniyor" },
+  "status_loading_sub":      { "message": "İlk yükleme ~5–10 sn, sonra önbelleğe alınır" },
+  "status_muted_title":      { "message": "Müzik Algılandı — Susturuldu" },
+  "status_muted_sub":        { "message": "Müzik bitince ses geri gelecek" },
+  "status_error_title":      { "message": "Sınıflandırıcı Hatası" },
+  "status_error_sub":        { "message": "Tekrar denemek için sayfayı yenileyin" },
+  "status_listening_title":  { "message": "Dinleniyor — Müzik Yok" },
+  "status_listening_sub":    { "message": "Ses normal çalıyor" },
+
+  "idle_title":              { "message": "Video algılanmadı" },
+  "idle_sub":                { "message": "Sakina YouTube, Instagram, Facebook ve TikTok'ta otomatik devreye girer." },
+
+  "stat_music_muted":        { "message": "Müzik susturuldu" },
+  "stat_segments":           { "message": "Engellenen bölüm" },
+
+  "section_detection":       { "message": "Algılama Ayarları" },
+  "setting_sensitivity_label": { "message": "Müzik Hassasiyeti" },
+  "setting_sensitivity_desc":  { "message": "Yapay zekanın susturmak için gereken güven düzeyi" },
+  "sensitivity_more":        { "message": "Daha hassas" },
+  "sensitivity_accurate":    { "message": "Daha doğru" },
+
+  "setting_singing_label":   { "message": "Şarkı ve Vokalleri Sustur" },
+  "setting_singing_desc":    { "message": "A cappella ve arka plan vokalleri dahil" },
+  "setting_badge_label":     { "message": "Durum Rozetini Göster" },
+  "setting_badge_desc":      { "message": "Uzantı simgesinde susturma göstergesi" },
+
+  "btn_reset_stats":         { "message": "İstatistikleri sıfırla" },
+  "btn_about":               { "message": "Hakkında" },
+  "btn_advanced":            { "message": "Gelişmiş ayarlar ↗" },
+  "confirm_reset":           { "message": "Tüm susturma istatistikleri sıfırlansın mı?" },
+  "saved_indicator":         { "message": "Kaydedildi ✓" },
+
+  "options_title":           { "message": "Sakina Ayarları" },
+  "options_reset_stats":     { "message": "İstatistikleri Sıfırla" },
+  "confirm_reset_lifetime":  { "message": "Tüm istatistikler sıfırlansın mı?" },
+
+  "opt_section_platforms":        { "message": "Platformlar" },
+  "opt_section_allowlist":        { "message": "Asla Susturma" },
+  "opt_section_activity":         { "message": "Son Aktivite" },
+  "opt_section_stats":            { "message": "İstatistikler" },
+  "opt_section_detection":        { "message": "Algılama" },
+  "opt_section_general":          { "message": "Genel" },
+
+  "opt_platform_youtube":         { "message": "YouTube" },
+  "opt_platform_instagram":       { "message": "Instagram" },
+  "opt_platform_facebook":        { "message": "Facebook" },
+  "opt_platform_tiktok":          { "message": "TikTok" },
+
+  "opt_allowlist_empty":          { "message": "Henüz öğe yok" },
+  "opt_allowlist_placeholder":    { "message": "youtube.com/@KanalAdi" },
+  "opt_allowlist_btn_add":        { "message": "Ekle" },
+  "opt_allowlist_desc":           { "message": "Müziğin asla susturulmaması gereken kanal URL'lerini ekleyin." },
+
+  "opt_activity_empty":           { "message": "Son aktivite yok" },
+  "opt_activity_clear":           { "message": "Geçmişi temizle" },
+
+  "opt_stat_muted":               { "message": "Susturuldu" },
+  "opt_stat_segments":            { "message": "Engellenen Bölüm" },
+  "opt_stat_videos":              { "message": "İşlenen Video" },
+  "opt_stat_accuracy":            { "message": "Doğruluk" },
+  "opt_btn_export_csv":           { "message": "CSV İndir" },
+  "opt_btn_reset_stats":          { "message": "İstatistikleri sıfırla" },
+  "opt_confirm_reset_stats":      { "message": "Tüm istatistikler sıfırlansın mı? Bu geri alınamaz." },
+
+  "opt_sensitivity_label":        { "message": "Müzik Hassasiyeti" },
+  "opt_sensitivity_desc":         { "message": "Susturmayı tetiklemek için gereken minimum AI güveni" },
+  "opt_sensitivity_left":         { "message": "← Hassas (daha fazla susturabilir)" },
+  "opt_sensitivity_right":        { "message": "(daha az yanlış pozitif) Katı →" },
+
+  "opt_singing_label":            { "message": "Şarkı ve Vokalleri Sustur" },
+  "opt_singing_desc":             { "message": "A cappella, korolar ve arka plan vokalleri dahil" },
+  "opt_enable_label":             { "message": "Sakina'i Etkinleştir" },
+  "opt_enable_desc":              { "message": "Ana açma/kapama düğmesi" },
+  "opt_badge_label":              { "message": "Durum Rozetini Göster" },
+  "opt_badge_desc":               { "message": "Susturulduğunda ikon üzerinde 🔇 görüntüler" },
+
+  "opt_welcome_title":            { "message": "Sakina'e Hoş Geldiniz 👋" },
+  "opt_welcome_body":             { "message": "Tercihleriniz otomatik kaydedilir. Herhangi bir video açın — Sakina AI modelini ilk seferinde yükler (~5 saniye), ardından tamamen çevrimdışı çalışır." },
+
+  "opt_footer_bug":               { "message": "Hata bildir" },
+  "opt_footer_about":             { "message": "Hakkında" },
+  "opt_footer_made":              { "message": "Özenle yapıldı" },
+
+  "about_quran_arabic":           { "message": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا" },
+  "about_quran_transliteration":  { "message": "Ve men yettekıllâhe yec'al lehû mahrecâ" },
+  "about_quran_translation":      { "message": "Kim Allah'tan korkarsa, Allah ona bir çıkış yolu açar." },
+  "about_quran_reference":        { "message": "Talak Suresi, 65:2" },
+  "about_title":                  { "message": "Sakina Hakkında" },
+  "about_what_title":             { "message": "Sakina Nedir?" },
+  "about_what_body":              { "message": "Sakina, cihazınızdaki yapay zekayı kullanarak YouTube, Instagram, Facebook ve TikTok'taki müziği otomatik olarak algılayan ve susturan ücretsiz bir Chrome eklentisidir. Konuşma, Kuran tilaveti ve ortam sesleri her zaman normal çalar — yalnızca müzik susturulur." },
+  "about_why_title":              { "message": "Neden Oluşturuldu?" },
+  "about_why_body":               { "message": "Bu eklenti Müslüman topluluk için bir hediye olarak oluşturuldu. Çoğumuz müziğin kalbimize girmesine izin vermeden faydalı videolardan yararlanmak istiyoruz. Kalp hem Kuran'ı hem de müziği barındıramaz — bu yüzden bu araç onu korumak için yapıldı.\n\nAbonelik yok. Hesap yok. Veri toplama yok. Dünyadaki her Müslüman için Allah rızası için ücretsiz." },
+  "about_dua_title":              { "message": "Bir Rica" },
+  "about_dua_body":               { "message": "Karşılığında yalnızca duanızı istiyorum. Bu eklenti size fayda sağladıysa, lütfen benim, ailem ve tüm Müslümanlar için dua edin. Allah'tan bu küçük ameli kabul etmesini ve kalplerimizi sabit tutmasını dileyin.\n\nAllah'ın bunu, amellerin en çok önem taşıdığı günde bir hayır kaynağı yapmasını dilerim." },
+  "about_dua_arabic":             { "message": "اللَّهُمَّ تَقَبَّل مِنَّا" },
+  "about_dua_arabic_meaning":     { "message": "Allahım, bizden kabul et." },
+  "about_footer_version":         { "message": "Sakina" },
+  "about_footer_free":            { "message": "Sonsuza dek ücretsiz · Ümmet için · li-wajhillah" }
+}

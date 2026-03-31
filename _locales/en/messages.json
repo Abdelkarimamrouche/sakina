@@ -1,0 +1,139 @@
+{
+  "ext_name":                { "message": "Sakina — Auto Mute Music" },
+  "ext_short_name":          { "message": "Sakina" },
+  "ext_description":         { "message": "Automatically detects and mutes music on YouTube, Instagram, Facebook and TikTok using on-device AI. Speech and ambient sounds play normally." },
+
+  "toggle_enable":           { "message": "Enable Sakina" },
+  "toggle_disable":          { "message": "Disable Sakina" },
+
+  "status_loading_title":    { "message": "Loading AI Model" },
+  "status_loading_sub":      { "message": "First-time load ~5–10s, then cached" },
+  "status_muted_title":      { "message": "Music Detected — Muted" },
+  "status_muted_sub":        { "message": "Audio will restore when music ends" },
+  "status_error_title":      { "message": "Classifier Error" },
+  "status_error_sub":        { "message": "Reload the page to retry" },
+  "status_listening_title":  { "message": "Listening — No Music" },
+  "status_listening_sub":    { "message": "Audio playing normally" },
+
+  "idle_title":              { "message": "No video detected" },
+  "idle_sub":                { "message": "Sakina activates automatically on YouTube, Instagram, Facebook and TikTok." },
+
+  "stat_music_muted":        { "message": "Music muted" },
+  "stat_segments":           { "message": "Segments blocked" },
+
+  "section_detection":       { "message": "Detection Settings" },
+  "setting_sensitivity_label": { "message": "Music Sensitivity" },
+  "setting_sensitivity_desc":  { "message": "How confident the AI must be to mute" },
+  "sensitivity_more":        { "message": "More sensitive" },
+  "sensitivity_accurate":    { "message": "More accurate" },
+
+  "setting_singing_label":   { "message": "Mute Singing & Vocals" },
+  "setting_singing_desc":    { "message": "Includes a cappella, background vocals" },
+  "setting_badge_label":     { "message": "Show Status Badge" },
+  "setting_badge_desc":      { "message": "Muted indicator on extension icon" },
+
+  "btn_reset_stats":         { "message": "Reset stats" },
+  "btn_about":               { "message": "About" },
+  "btn_advanced":            { "message": "Advanced settings ↗" },
+  "confirm_reset":           { "message": "Reset all mute statistics?" },
+  "saved_indicator":         { "message": "Saved ✓" },
+
+  "options_title":           { "message": "Sakina Settings" },
+  "options_reset_stats":     { "message": "Reset Statistics" },
+  "confirm_reset_lifetime":  { "message": "Reset all lifetime statistics?" },
+
+  "section_platforms":       { "message": "Platforms" },
+  "section_allowlist":       { "message": "Never mute on" },
+  "section_activity":        { "message": "Recent Activity" },
+  "section_stats":           { "message": "Statistics" },
+
+  "platform_youtube":        { "message": "YouTube" },
+  "platform_instagram":      { "message": "Instagram" },
+  "platform_facebook":       { "message": "Facebook" },
+  "platform_tiktok":         { "message": "TikTok" },
+
+  "allowlist_placeholder":   { "message": "Enter URL or channel path..." },
+  "allowlist_add":           { "message": "Add" },
+  "allowlist_empty":         { "message": "No items yet" },
+
+  "activity_empty":          { "message": "No recent activity" },
+  "activity_last_24h":       { "message": "Last 24h" },
+  "btn_clear_activity":      { "message": "Clear history" },
+
+  "stat_muted_time":         { "message": "Time muted" },
+  "stat_mute_count":         { "message": "Mute segments" },
+  "stat_videos":             { "message": "Videos processed" },
+  "stat_accuracy":           { "message": "Accuracy" },
+  "stat_breakdown":          { "message": "By platform" },
+
+  "btn_export_csv":          { "message": "Export CSV" },
+  "confirm_reset_all":       { "message": "Reset all statistics?" },
+  "confirm_clear_activity":  { "message": "Clear activity history?" },
+
+  "time_just_now":           { "message": "just now" },
+  "time_ago":                { "message": "ago" },
+  "time_over_24h":           { "message": "24h+ ago" },
+
+  "opt_section_platforms":        { "message": "Platforms" },
+  "opt_section_allowlist":        { "message": "Never Mute On" },
+  "opt_section_activity":         { "message": "Recent Activity" },
+  "opt_section_stats":            { "message": "Statistics" },
+  "opt_section_detection":        { "message": "Detection" },
+  "opt_section_general":          { "message": "General" },
+
+  "opt_platform_youtube":         { "message": "YouTube" },
+  "opt_platform_instagram":       { "message": "Instagram" },
+  "opt_platform_facebook":        { "message": "Facebook" },
+  "opt_platform_tiktok":          { "message": "TikTok" },
+
+  "opt_allowlist_empty":          { "message": "No items yet" },
+  "opt_allowlist_placeholder":    { "message": "youtube.com/@ChannelName" },
+  "opt_allowlist_btn_add":        { "message": "Add" },
+  "opt_allowlist_desc":           { "message": "Add channel URLs or page paths where music should never be muted." },
+
+  "opt_activity_empty":           { "message": "No recent activity" },
+  "opt_activity_clear":           { "message": "Clear history" },
+
+  "opt_stat_muted":               { "message": "Muted" },
+  "opt_stat_segments":            { "message": "Segments Blocked" },
+  "opt_stat_videos":              { "message": "Videos Processed" },
+  "opt_stat_accuracy":            { "message": "Accuracy" },
+  "opt_btn_export_csv":           { "message": "Export CSV" },
+  "opt_btn_reset_stats":          { "message": "Reset all stats" },
+  "opt_confirm_reset_stats":      { "message": "Reset all statistics? This cannot be undone." },
+
+  "opt_sensitivity_label":        { "message": "Music Sensitivity" },
+  "opt_sensitivity_desc":         { "message": "Minimum AI confidence required to trigger muting" },
+  "opt_sensitivity_left":         { "message": "← Sensitive (may mute more)" },
+  "opt_sensitivity_right":        { "message": "(fewer false positives) Strict →" },
+
+  "opt_singing_label":            { "message": "Mute Singing & Vocals" },
+  "opt_singing_desc":             { "message": "Includes a cappella, choirs, background vocals" },
+  "opt_enable_label":             { "message": "Enable Sakina" },
+  "opt_enable_desc":              { "message": "Master on/off switch" },
+  "opt_badge_label":              { "message": "Show Status Badge" },
+  "opt_badge_desc":               { "message": "Displays 🔇 on the extension icon when music is muted" },
+
+  "opt_welcome_title":            { "message": "Welcome to Sakina 👋" },
+  "opt_welcome_body":             { "message": "Your preferences are saved automatically. Open any YouTube video — Sakina will load the AI model the first time (~5 seconds), then run fully offline." },
+
+  "opt_footer_bug":               { "message": "Report a bug" },
+  "opt_footer_about":             { "message": "About" },
+  "opt_footer_made":              { "message": "Made with care" },
+
+  "about_quran_arabic":           { "message": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا" },
+  "about_quran_transliteration":  { "message": "Wa man yattaqillāha yaj'al lahu makhrajan" },
+  "about_quran_translation":      { "message": "And whoever fears Allah — He will make for him a way out." },
+  "about_quran_reference":        { "message": "Surah At-Talaq, 65:2" },
+  "about_title":                  { "message": "About Sakina" },
+  "about_what_title":             { "message": "What is Sakina?" },
+  "about_what_body":              { "message": "Sakina is a free Chrome extension that automatically detects and mutes music on YouTube, Instagram, Facebook, and TikTok using on-device AI. Speech, Quran recitation, and ambient sounds always play normally — only music is muted." },
+  "about_why_title":              { "message": "Why was it created?" },
+  "about_why_body":               { "message": "This extension was created as a gift for the Muslim community. Many of us want to benefit from useful videos without having music enter our hearts. The heart cannot hold both the Quran and music — so this tool was built to protect it.\n\nNo subscription. No account. No data collected. Free for every Muslim in the world, for the sake of Allah." },
+  "about_dua_title":              { "message": "A Request" },
+  "about_dua_body":               { "message": "I ask for nothing in return except your Dua. If this extension has benefited you, please make Dua for me, my family, and all Muslims. Ask Allah to accept this small deed and to keep our hearts firm.\n\nMay Allah make it a source of good on the Day when deeds will matter most." },
+  "about_dua_arabic":             { "message": "اللَّهُمَّ تَقَبَّل مِنَّا" },
+  "about_dua_arabic_meaning":     { "message": "O Allah, accept from us." },
+  "about_footer_version":         { "message": "Sakina" },
+  "about_footer_free":            { "message": "Free forever · For the Ummah · li-wajhillah" }
+}

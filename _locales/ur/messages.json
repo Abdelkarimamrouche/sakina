@@ -1,0 +1,107 @@
+{
+  "ext_name":                { "message": "Sakina — موسیقی خودکار خاموش" },
+  "ext_short_name":          { "message": "Sakina" },
+  "ext_description":         { "message": "یوٹیوب، انسٹاگرام، فیس بک اور ٹک ٹاک پر AI کے ذریعے موسیقی خودکار طور پر پہچان کر خاموش کرتا ہے۔ گفتگو اور قدرتی آوازیں عام طور پر چلتی رہتی ہیں۔" },
+
+  "toggle_enable":           { "message": "Sakina فعال کریں" },
+  "toggle_disable":          { "message": "Sakina غیر فعال کریں" },
+
+  "status_loading_title":    { "message": "AI ماڈل لوڈ ہو رہا ہے" },
+  "status_loading_sub":      { "message": "پہلی بار ~٥-١٠ سیکنڈ، پھر محفوظ" },
+  "status_muted_title":      { "message": "موسیقی پائی گئی — خاموش" },
+  "status_muted_sub":        { "message": "موسیقی ختم ہونے پر آواز بحال ہو گی" },
+  "status_error_title":      { "message": "درجہ بندی کی خرابی" },
+  "status_error_sub":        { "message": "دوبارہ کوشش کے لیے صفحہ دوبارہ لوڈ کریں" },
+  "status_listening_title":  { "message": "سن رہا ہے — کوئی موسیقی نہیں" },
+  "status_listening_sub":    { "message": "آواز عام طور پر چل رہی ہے" },
+
+  "idle_title":              { "message": "کوئی ویڈیو نہیں ملی" },
+  "idle_sub":                { "message": "Sakina یوٹیوب، انسٹاگرام، فیس بک اور ٹک ٹاک پر خودکار فعال ہوتا ہے۔" },
+
+  "stat_music_muted":        { "message": "موسیقی خاموش" },
+  "stat_segments":           { "message": "بلاک شدہ حصے" },
+
+  "section_detection":       { "message": "پتہ لگانے کی ترتیبات" },
+  "setting_sensitivity_label": { "message": "موسیقی کی حساسیت" },
+  "setting_sensitivity_desc":  { "message": "خاموش کرنے کے لیے AI کا اعتماد کا درجہ" },
+  "sensitivity_more":        { "message": "زیادہ حساس" },
+  "sensitivity_accurate":    { "message": "زیادہ درست" },
+
+  "setting_singing_label":   { "message": "گانا اور آوازیں خاموش کریں" },
+  "setting_singing_desc":    { "message": "a cappella اور پس منظر کی آوازیں شامل ہیں" },
+  "setting_badge_label":     { "message": "اسٹیٹس بیج دکھائیں" },
+  "setting_badge_desc":      { "message": "آئیکن پر خاموش اشارہ" },
+
+  "btn_reset_stats":         { "message": "اعداد و شمار ری سیٹ کریں" },
+  "btn_about":               { "message": "کے بارے میں" },
+  "btn_advanced":            { "message": "جدید ترتیبات ↗" },
+  "confirm_reset":           { "message": "تمام خاموشی کے اعداد و شمار ری سیٹ کریں؟" },
+  "saved_indicator":         { "message": "محفوظ ✓" },
+
+  "options_title":           { "message": "Sakina ترتیبات" },
+  "options_reset_stats":     { "message": "اعداد و شمار ری سیٹ" },
+  "confirm_reset_lifetime":  { "message": "تمام اعداد و شمار ری سیٹ کریں؟" },
+
+  "opt_section_platforms":        { "message": "پلیٹ فارمز" },
+  "opt_section_allowlist":        { "message": "کبھی خاموش نہ کریں" },
+  "opt_section_activity":         { "message": "حالیہ سرگرمی" },
+  "opt_section_stats":            { "message": "اعداد و شمار" },
+  "opt_section_detection":        { "message": "پتہ لگانا" },
+  "opt_section_general":          { "message": "عام" },
+
+  "opt_platform_youtube":         { "message": "YouTube" },
+  "opt_platform_instagram":       { "message": "Instagram" },
+  "opt_platform_facebook":        { "message": "Facebook" },
+  "opt_platform_tiktok":          { "message": "TikTok" },
+
+  "opt_allowlist_empty":          { "message": "ابھی کوئی آئٹم نہیں" },
+  "opt_allowlist_placeholder":    { "message": "youtube.com/@چینل_کا_نام" },
+  "opt_allowlist_btn_add":        { "message": "شامل کریں" },
+  "opt_allowlist_desc":           { "message": "ایسے چینل URLs شامل کریں جہاں موسیقی کبھی خاموش نہ ہو۔" },
+
+  "opt_activity_empty":           { "message": "کوئی حالیہ سرگرمی نہیں" },
+  "opt_activity_clear":           { "message": "تاریخ صاف کریں" },
+
+  "opt_stat_muted":               { "message": "خاموش" },
+  "opt_stat_segments":            { "message": "بلاک شدہ حصے" },
+  "opt_stat_videos":              { "message": "پروسیس شدہ ویڈیوز" },
+  "opt_stat_accuracy":            { "message": "درستگی" },
+  "opt_btn_export_csv":           { "message": "CSV برآمد کریں" },
+  "opt_btn_reset_stats":          { "message": "اعداد و شمار ری سیٹ کریں" },
+  "opt_confirm_reset_stats":      { "message": "تمام اعداد و شمار ری سیٹ کریں؟ یہ واپس نہیں ہو سکتا۔" },
+
+  "opt_sensitivity_label":        { "message": "موسیقی کی حساسیت" },
+  "opt_sensitivity_desc":         { "message": "خاموش کرنے کے لیے AI کی کم از کم اعتماد کی سطح" },
+  "opt_sensitivity_left":         { "message": "← حساس (زیادہ خاموش کر سکتا ہے)" },
+  "opt_sensitivity_right":        { "message": "(کم غلط شناخت) سخت →" },
+
+  "opt_singing_label":            { "message": "گانا اور آوازیں خاموش کریں" },
+  "opt_singing_desc":             { "message": "a cappella، گروہی گانا اور پس منظر کی آوازیں شامل ہیں" },
+  "opt_enable_label":             { "message": "Sakina فعال کریں" },
+  "opt_enable_desc":              { "message": "مرکزی آن/آف سوئچ" },
+  "opt_badge_label":              { "message": "اسٹیٹس بیج دکھائیں" },
+  "opt_badge_desc":               { "message": "خاموش ہونے پر آئیکن پر 🔇 دکھاتا ہے" },
+
+  "opt_welcome_title":            { "message": "Sakina میں خوش آمدید 👋" },
+  "opt_welcome_body":             { "message": "آپ کی ترجیحات خودکار محفوظ ہوتی ہیں۔ کوئی بھی ویڈیو کھولیں — Sakina پہلی بار AI ماڈل لوڈ کرے گا (~5 سیکنڈ)، پھر مکمل آف لائن چلے گا۔" },
+
+  "opt_footer_bug":               { "message": "بگ رپورٹ کریں" },
+  "opt_footer_about":             { "message": "کے بارے میں" },
+  "opt_footer_made":              { "message": "توجہ سے بنایا گیا" },
+
+  "about_quran_arabic":           { "message": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا" },
+  "about_quran_transliteration":  { "message": "Wa man yattaqillāha yaj'al lahu makhrajan" },
+  "about_quran_translation":      { "message": "اور جو اللہ سے ڈرے — وہ اس کے لیے نکلنے کی راہ بنا دے گا۔" },
+  "about_quran_reference":        { "message": "سورۃ الطلاق، ٦٥:٢" },
+  "about_title":                  { "message": "Sakina کے بارے میں" },
+  "about_what_title":             { "message": "Sakina کیا ہے؟" },
+  "about_what_body":              { "message": "Sakina ایک مفت Chrome ایکسٹینشن ہے جو ڈیوائس پر AI کے ذریعے YouTube، Instagram، Facebook اور TikTok پر موسیقی کو خودکار طور پر پہچان کر خاموش کرتی ہے۔ گفتگو، قرآن کی تلاوت اور ماحول کی آوازیں ہمیشہ عام طور پر چلتی ہیں — صرف موسیقی خاموش ہوتی ہے۔" },
+  "about_why_title":              { "message": "یہ کیوں بنائی گئی؟" },
+  "about_why_body":               { "message": "یہ ایکسٹینشن مسلم کمیونٹی کے لیے ایک تحفے کے طور پر بنائی گئی۔ ہم میں سے بہت سے لوگ مفید ویڈیوز سے فائدہ اٹھانا چاہتے ہیں بغیر موسیقی کو دل میں داخل کیے۔ دل قرآن اور موسیقی دونوں کو ایک ساتھ نہیں رکھ سکتا — اس لیے یہ ٹول اس کی حفاظت کے لیے بنایا گیا۔\n\nکوئی سبسکرپشن نہیں۔ کوئی اکاؤنٹ نہیں۔ کوئی ڈیٹا جمع نہیں۔ اللہ کی رضا کے لیے دنیا کے ہر مسلمان کے لیے مفت۔" },
+  "about_dua_title":              { "message": "ایک درخواست" },
+  "about_dua_body":               { "message": "میں بدلے میں کچھ نہیں مانگتا سوائے آپ کی دعا کے۔ اگر یہ ایکسٹینشن آپ کے کام آئی ہے، تو براہ کرم میرے، میرے خاندان اور تمام مسلمانوں کے لیے دعا کریں۔ اللہ سے دعا کریں کہ وہ اس چھوٹے عمل کو قبول فرمائے اور ہمارے دلوں کو ثابت رکھے۔\n\nاللہ اسے اس دن خیر کا ذریعہ بنائے جب اعمال سب سے زیادہ اہم ہوں گے۔" },
+  "about_dua_arabic":             { "message": "اللَّهُمَّ تَقَبَّل مِنَّا" },
+  "about_dua_arabic_meaning":     { "message": "اے اللہ، ہم سے قبول فرما۔" },
+  "about_footer_version":         { "message": "Sakina" },
+  "about_footer_free":            { "message": "ہمیشہ مفت · امت کے لیے · لوجہ اللہ" }
+}

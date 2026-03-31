@@ -1,23 +1,30 @@
 /**
- * MusicShield — Content Script
+ * Sakina — Content Script
  *
- * Injected into every YouTube tab. Orchestrates the full pipeline:
- *   1. Detects video element and play events
- *   2. Loads YAMNet model (lazy, first play only)
- *   3. Wires AudioPipeline + MuteController
- *   4. Handles YouTube SPA navigation (yt-navigate-finish)
- *   5. Communicates state to background service worker
- *   6. Responds to settings changes from popup
+ * Injected into YouTube, Instagram, Facebook, and TikTok tabs.
+ * Orchestrates the full pipeline:
+ *   1. Detects the current platform via platforms.js adapter
+ *   2. Detects video element and play events (platform-agnostic)
+ *   3. Loads YAMNet model (lazy, first play only)
+ *   4. Wires AudioPipeline + MuteController
+ *   5. Handles SPA navigation for all platforms
+ *   6. Communicates state to background service worker
+ *   7. Responds to settings changes from popup
  *
- * YouTube is a Single Page App. We must handle navigation events
- * carefully as video elements are reused or recreated.
+ * Each platform uses a different SPA navigation pattern and video
+ * selector — all of that is encapsulated in platforms.js adapters.
  */
 
 import { AudioPipeline } from './AudioPipeline.js';
 import { YamNetClassifier } from './YamNetClassifier.js';
 import { MuteController } from './MuteController.js';
-import { getSettings, onSettingsChange, addMutedSeconds, incrementMuteCount, incrementVideosProcessed } from '../shared/storage.js';
-import { MSG, EXTENSION_STATE, STORAGE_KEYS, MIN_VIDEO_DURATION_SECONDS } from '../shared/constants.js';
+import { detectPlatform, waitForVideo, findBestVideo } from './platforms.js';
+import {
+  getSettings, onSettingsChange,
+  addMutedSeconds, incrementMuteCount, incrementVideosProcessed,
+  getAllowlist, addActivityEntry, addPlatformMutedSeconds,
+} from '../shared/storage.js';
+import { MSG, EXTENSION_STATE, STORAGE_KEYS, PLATFORM_TO_STORAGE_KEY, MIN_VIDEO_DURATION_SECONDS } from '../shared/constants.js';
 
 // ─── Module-level State ───────────────────────────────────────────────────────
 
@@ -45,56 +52,76 @@ let lastVideoEl = null;
 /** Stats flush interval handle */
 let statsFlushInterval = null;
 
-/** Observer watching for video element changes */
+/** MutationObserver watching for video element changes */
 let videoObserver = null;
+
+/** Platform adapter for the current tab */
+let platform = null;
+
+/** Cleanup function returned by platform.setupNavigation() */
+let removeNavListeners = null;
+
+/** Allowlist of URLs/patterns to never mute */
+let allowlist = [];
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
 
 async function bootstrap() {
-  console.info('[MusicShield] Content script loaded on', location.href);
-
-  // Load settings
-  settings = await getSettings();
-  isEnabled = settings[STORAGE_KEYS.ENABLED];
-
-  if (!isEnabled) {
-    console.info('[MusicShield] Extension is disabled, standing by.');
+  // Detect which platform we're on. If unsupported, bail out silently.
+  platform = detectPlatform();
+  if (!platform) {
+    console.info('[Sakina] Unsupported platform, exiting.');
     return;
   }
 
-  // Watch for YouTube SPA navigation
-  document.addEventListener('yt-navigate-finish', onYouTubeNavigation);
-  document.addEventListener('yt-page-data-updated', onYouTubeNavigation);
+  console.info(`[Sakina] Loaded on ${platform.name}:`, location.href);
 
-  // Watch for settings changes from popup
+  [settings, allowlist] = await Promise.all([getSettings(), getAllowlist()]);
+  isEnabled = settings[STORAGE_KEYS.ENABLED];
+
+  if (!isEnabled) {
+    console.info('[Sakina] Extension disabled, standing by.');
+    return;
+  }
+
+  // Check if this platform is enabled
+  const platformKey = PLATFORM_TO_STORAGE_KEY[platform.name.toLowerCase()];
+  if (platformKey && settings[platformKey] === false) {
+    console.info(`[Sakina] ${platform.name} is disabled in settings, standing by.`);
+    return;
+  }
+
+  // Check if current URL is in allowlist
+  if (isUrlAllowlisted(location.href)) {
+    console.info('[Sakina] URL is allowlisted, standing by.');
+    return;
+  }
+
+  // Register SPA navigation listener (platform-specific).
+  removeNavListeners = platform.setupNavigation(onNavigation);
+
+  // Watch for settings changes from popup.
   onSettingsChange(handleSettingsChange);
 
-  // Listen for messages from background/popup
+  // Listen for messages from background / popup.
   chrome.runtime.onMessage.addListener(handleMessage);
 
-  // Initial setup if we're already on a watch page
-  if (isWatchPage()) {
+  // Initial setup if there's already a video page loaded.
+  if (platform.isVideoPage()) {
     await setupForCurrentPage();
   }
 }
 
-// ─── YouTube Navigation ───────────────────────────────────────────────────────
+// ─── SPA Navigation ───────────────────────────────────────────────────────────
 
-async function onYouTubeNavigation() {
-  console.info('[MusicShield] Navigation event:', location.href);
-
-  // Tear down existing pipeline cleanly
+async function onNavigation() {
+  console.info(`[Sakina:${platform.name}] Navigation →`, location.href);
   await teardown();
 
-  if (isWatchPage() && isEnabled) {
-    // Small delay to let YouTube finish rendering the video element
-    setTimeout(setupForCurrentPage, 300);
+  if (platform.isVideoPage() && isEnabled) {
+    // Brief delay so the platform can finish rendering the new video element.
+    setTimeout(setupForCurrentPage, 350);
   }
-}
-
-function isWatchPage() {
-  return (location.pathname === '/watch' && location.search.includes('v='))
-    || location.pathname.startsWith('/shorts/');
 }
 
 // ─── Page Setup ───────────────────────────────────────────────────────────────
@@ -102,73 +129,63 @@ function isWatchPage() {
 async function setupForCurrentPage() {
   if (isActive) return;
 
-  const videoEl = await waitForVideoElement();
+  const videoEl = await waitForVideo(platform);
   if (!videoEl) {
-    console.warn('[MusicShield] No video element found after waiting.');
+    console.warn(`[Sakina:${platform.name}] No video element found.`);
     return;
   }
 
-  // Don't re-attach to the same element
   if (videoEl === lastVideoEl && isActive) return;
 
   lastVideoEl = videoEl;
 
-  // Skip very short clips (ads can be short, but we handle ads separately)
+  // Skip very short clips.
   if (videoEl.duration && videoEl.duration < MIN_VIDEO_DURATION_SECONDS) {
-    console.info('[MusicShield] Skipping short video:', videoEl.duration, 's');
+    console.info(`[Sakina:${platform.name}] Skipping short video (${videoEl.duration}s)`);
     return;
   }
 
-  console.info('[MusicShield] Attaching to video element. Duration:', videoEl.duration);
+  console.info(`[Sakina:${platform.name}] Attaching to video. Duration:`, videoEl.duration);
 
-  // Load model if not ready (lazy load)
+  // ── Load YAMNet (lazy) ──────────────────────────────────────────────────────
   if (!classifier.isReady && !classifier.isLoading) {
     reportStatus(EXTENSION_STATE.LOADING);
     try {
       await classifier.load();
     } catch (err) {
       reportStatus(EXTENSION_STATE.ERROR);
-      console.error('[MusicShield] Failed to load classifier:', err);
+      console.error('[Sakina] Failed to load classifier:', err);
       return;
     }
   } else if (classifier.isLoading) {
     reportStatus(EXTENSION_STATE.LOADING);
-    // Wait for existing load to complete
     await new Promise(resolve => {
       const check = setInterval(() => {
-        if (!classifier.isLoading) {
-          clearInterval(check);
-          resolve();
-        }
+        if (!classifier.isLoading) { clearInterval(check); resolve(); }
       }, 200);
     });
     if (!classifier.isReady) return;
   }
 
-  // Apply current settings to classifier
   classifier.updateSettings({
     threshold: settings[STORAGE_KEYS.THRESHOLD],
     muteSinging: settings[STORAGE_KEYS.MUTE_SINGING],
   });
 
-  // Create pipeline
+  // ── Wire AudioPipeline ─────────────────────────────────────────────────────
   pipeline = new AudioPipeline(videoEl);
 
-  // Wire up audio chunk processing
   pipeline.onAudioChunk = async (frame) => {
     if (!isEnabled || !controller) return;
     try {
       const result = await classifier.classify(frame);
       controller.processResult(result);
     } catch (err) {
-      // Don't spam logs — classification errors during teardown are expected
-      if (isActive) {
-        console.warn('[MusicShield] Classification error:', err.message);
-      }
+      if (isActive) console.warn('[Sakina] Classification error:', err.message);
     }
   };
 
-  // Create controller
+  // ── Wire MuteController ────────────────────────────────────────────────────
   controller = new MuteController(pipeline, classifier);
 
   controller.onStateChange = (state) => {
@@ -179,12 +196,12 @@ async function setupForCurrentPage() {
   controller.onClassification = ({ isMusic, confidence, topClass }) => {
     if (process.env.NODE_ENV === 'development') {
       console.debug(
-        `[MusicShield] ${isMusic ? '🎵' : '💬'} ${topClass} (${(confidence * 100).toFixed(1)}%)`
+        `[Sakina:${platform.name}] ${isMusic ? '🎵' : '💬'} ${topClass} (${(confidence * 100).toFixed(1)}%)`
       );
     }
   };
 
-  // Initialize pipeline on first play (respects autoplay policy)
+  // ── Initialize pipeline on first play ─────────────────────────────────────
   const initPipeline = async () => {
     try {
       await pipeline.initialize();
@@ -192,21 +209,51 @@ async function setupForCurrentPage() {
       incrementVideosProcessed();
       reportStatus(EXTENSION_STATE.READY);
     } catch (err) {
-      console.error('[MusicShield] Pipeline init failed:', err);
+      console.error('[Sakina] Pipeline init failed:', err);
       reportStatus(EXTENSION_STATE.ERROR);
     }
   };
 
+  console.info(`[Sakina:${platform.name}] Video paused=${videoEl.paused}, readyState=${videoEl.readyState}, src=${videoEl.src?.substring(0, 60) || videoEl.currentSrc?.substring(0, 60) || 'none'}`);
+
   if (!videoEl.paused) {
     await initPipeline();
   } else {
-    videoEl.addEventListener('play', initPipeline, { once: true });
+    // Listen for both 'play' and 'playing' — some platforms (TikTok)
+    // may start playback without firing 'play' reliably.
+    const onceInit = () => {
+      videoEl.removeEventListener('play', onceInit);
+      videoEl.removeEventListener('playing', onceInit);
+      clearTimeout(fallbackTimer);
+      initPipeline();
+    };
+    videoEl.addEventListener('play', onceInit, { once: true });
+    videoEl.addEventListener('playing', onceInit, { once: true });
+
+    // Fallback: poll every 500ms for up to 5s — TikTok may swap or
+    // start the video element late.
+    let fallbackAttempts = 0;
+    const fallbackTimer = setInterval(() => {
+      fallbackAttempts++;
+      const v = videoEl.paused ? findBestVideo(platform) : videoEl;
+      if (v && !v.paused) {
+        clearInterval(fallbackTimer);
+        videoEl.removeEventListener('play', onceInit);
+        videoEl.removeEventListener('playing', onceInit);
+        if (v !== videoEl) {
+          console.info(`[Sakina:${platform.name}] Fallback found a different playing video`);
+          pipeline._video = v;
+          lastVideoEl = v;
+        }
+        initPipeline();
+      } else if (fallbackAttempts >= 10) {
+        clearInterval(fallbackTimer);
+        console.warn(`[Sakina:${platform.name}] Fallback: no playing video found after 5s`);
+      }
+    }, 500);
   }
 
-  // Watch for video element replacement (YouTube sometimes swaps elements)
-  watchVideoElement(videoEl);
-
-  // Start stats flush loop
+  watchVideoElement();
   startStatsFlush();
 }
 
@@ -221,30 +268,34 @@ function startStatsFlush() {
       await addMutedSeconds(totalMutedSeconds);
       if (muteSegmentCount > 0) await incrementMuteCount(muteSegmentCount);
     }
-  }, 30_000); // Flush every 30 seconds
+  }, 30_000);
 }
 
 // ─── Video Element Watcher ────────────────────────────────────────────────────
 
-function watchVideoElement(videoEl) {
+/**
+ * Watch for the platform swapping out the video element under us.
+ * This is common on TikTok (scroll) and YouTube Shorts (swipe).
+ */
+function watchVideoElement() {
   if (videoObserver) {
     videoObserver.disconnect();
     videoObserver = null;
   }
 
   videoObserver = new MutationObserver(async () => {
-    const currentVideo = document.querySelector('video.html5-main-video');
+    const currentVideo = findBestVideo(platform);
     if (currentVideo && currentVideo !== lastVideoEl) {
-      console.info('[MusicShield] Video element changed, reinitializing...');
+      console.info(`[Sakina:${platform.name}] Video element swapped, reinitializing…`);
       await teardown();
       setTimeout(setupForCurrentPage, 100);
     }
   });
 
-  const playerContainer = document.getElementById('movie_player');
-  if (playerContainer) {
-    videoObserver.observe(playerContainer, { childList: true, subtree: true });
-  }
+  const container =
+    document.querySelector(platform.playerContainerSelector) ?? document.body;
+
+  videoObserver.observe(container, { childList: true, subtree: true });
 }
 
 // ─── Teardown ─────────────────────────────────────────────────────────────────
@@ -259,9 +310,15 @@ async function teardown() {
   }
 
   if (controller) {
-    // Flush final stats
     const { totalMutedSeconds, muteSegmentCount } = controller.getSessionStats();
-    if (totalMutedSeconds > 0) await addMutedSeconds(totalMutedSeconds);
+    if (totalMutedSeconds > 0) {
+      await addMutedSeconds(totalMutedSeconds);
+      // Log activity and platform-specific stats
+      if (platform) {
+        await addActivityEntry(platform.name.toLowerCase(), totalMutedSeconds);
+        await addPlatformMutedSeconds(platform.name.toLowerCase(), totalMutedSeconds);
+      }
+    }
     if (muteSegmentCount > 0) await incrementMuteCount(muteSegmentCount);
     controller.reset();
     controller = null;
@@ -272,7 +329,7 @@ async function teardown() {
     pipeline = null;
   }
 
-  isActive = false;
+  isActive    = false;
   lastVideoEl = null;
 }
 
@@ -324,6 +381,7 @@ function handleMessage(message, sender, sendResponse) {
       sendResponse({
         isActive,
         isEnabled,
+        platform: platform?.name ?? 'Unknown',
         isMuted: pipeline?.isMuted ?? false,
         classifierReady: classifier.isReady,
         classifierLoading: classifier.isLoading,
@@ -336,7 +394,7 @@ function handleMessage(message, sender, sendResponse) {
     default:
       break;
   }
-  return true; // Keep message channel open for async responses
+  return true;
 }
 
 // ─── Communication Helpers ────────────────────────────────────────────────────
@@ -345,22 +403,22 @@ function reportStatus(state) {
   chrome.runtime.sendMessage({
     type: MSG.CLASSIFIER_STATUS,
     state,
-    tabId: null, // background will attach tabId
-  }).catch(() => {}); // Ignore if background isn't ready
+    tabId: null,
+  }).catch(() => {});
 }
 
 function updateBadge(state) {
   if (!settings[STORAGE_KEYS.SHOW_BADGE]) return;
 
   const badgeMap = {
-    [EXTENSION_STATE.MUTED]: { text: '🔇', color: '#ef4444' },
-    [EXTENSION_STATE.LISTENING]: { text: '', color: '#22c55e' },
-    [EXTENSION_STATE.LOADING]: { text: '⋯', color: '#f59e0b' },
-    [EXTENSION_STATE.DISABLED]: { text: 'OFF', color: '#6b7280' },
-    [EXTENSION_STATE.ERROR]: { text: '!', color: '#ef4444' },
+    [EXTENSION_STATE.MUTED]:     { text: '',    color: '#ef4444' },
+    [EXTENSION_STATE.LISTENING]: { text: '',    color: '#22c55e' },
+    [EXTENSION_STATE.LOADING]:   { text: '⋯',  color: '#f59e0b' },
+    [EXTENSION_STATE.DISABLED]:  { text: 'OFF', color: '#6b7280' },
+    [EXTENSION_STATE.ERROR]:     { text: '!',   color: '#ef4444' },
   };
 
-  const badge = badgeMap[state] || badgeMap[EXTENSION_STATE.LISTENING];
+  const badge = badgeMap[state] ?? badgeMap[EXTENSION_STATE.LISTENING];
   chrome.runtime.sendMessage({
     type: MSG.MUTE_STATE_CHANGED,
     badgeText: badge.text,
@@ -368,39 +426,22 @@ function updateBadge(state) {
   }).catch(() => {});
 }
 
-// ─── Utility: Wait for Video Element ──────────────────────────────────────────
+// ─── Allowlist Matching ────────────────────────────────────────────────────────
 
 /**
- * Wait for YouTube's main video element to appear in the DOM.
- * YouTube renders the player asynchronously.
- *
- * @param {number} timeout - Max wait time in ms
- * @returns {Promise<HTMLVideoElement|null>}
+ * Check if a URL matches any entry in the allowlist.
+ * Supports simple substring matching (e.g., "youtube.com/@channelName").
+ * @param {string} url
+ * @returns {boolean}
  */
-function waitForVideoElement(timeout = 8000) {
-  return new Promise((resolve) => {
-    const selector = 'video.html5-main-video';
-    const existing = document.querySelector(selector);
-    if (existing) {
-      resolve(existing);
-      return;
-    }
-
-    const observer = new MutationObserver(() => {
-      const el = document.querySelector(selector);
-      if (el) {
-        observer.disconnect();
-        clearTimeout(timeoutHandle);
-        resolve(el);
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    const timeoutHandle = setTimeout(() => {
-      observer.disconnect();
-      resolve(null);
-    }, timeout);
+function isUrlAllowlisted(url) {
+  if (!allowlist || allowlist.length === 0) return false;
+  const normalizedUrl = url.toLowerCase();
+  return allowlist.some(pattern => {
+    const normalizedPattern = pattern.toLowerCase().trim();
+    if (!normalizedPattern) return false;
+    // Simple substring match (handles channel names, paths, etc.)
+    return normalizedUrl.includes(normalizedPattern);
   });
 }
 

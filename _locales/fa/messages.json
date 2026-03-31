@@ -1,0 +1,107 @@
+{
+  "ext_name":                { "message": "Sakina — قطع خودکار موسیقی" },
+  "ext_short_name":          { "message": "Sakina" },
+  "ext_description":         { "message": "با استفاده از هوش مصنوعی، موسیقی را در یوتیوب، اینستاگرام، فیسبوک و تیک‌تاک به‌طور خودکار تشخیص داده و قطع می‌کند. صدای گفتار و محیط به‌صورت عادی پخش می‌شود." },
+
+  "toggle_enable":           { "message": "فعال‌سازی Sakina" },
+  "toggle_disable":          { "message": "غیرفعال‌سازی Sakina" },
+
+  "status_loading_title":    { "message": "در حال بارگذاری مدل هوش مصنوعی" },
+  "status_loading_sub":      { "message": "بارگذاری اول ~۵-۱۰ ثانیه، سپس ذخیره می‌شود" },
+  "status_muted_title":      { "message": "موسیقی شناسایی شد — قطع شد" },
+  "status_muted_sub":        { "message": "صدا پس از پایان موسیقی باز می‌گردد" },
+  "status_error_title":      { "message": "خطای طبقه‌بندی‌کننده" },
+  "status_error_sub":        { "message": "صفحه را برای تلاش مجدد بارگذاری کنید" },
+  "status_listening_title":  { "message": "در حال گوش دادن — بدون موسیقی" },
+  "status_listening_sub":    { "message": "صدا به‌صورت عادی پخش می‌شود" },
+
+  "idle_title":              { "message": "هیچ ویدیویی شناسایی نشد" },
+  "idle_sub":                { "message": "Sakina به‌طور خودکار در یوتیوب، اینستاگرام، فیسبوک و تیک‌تاک فعال می‌شود." },
+
+  "stat_music_muted":        { "message": "موسیقی قطع شده" },
+  "stat_segments":           { "message": "بخش‌های مسدود شده" },
+
+  "section_detection":       { "message": "تنظیمات تشخیص" },
+  "setting_sensitivity_label": { "message": "حساسیت موسیقی" },
+  "setting_sensitivity_desc":  { "message": "سطح اطمینان هوش مصنوعی برای قطع کردن" },
+  "sensitivity_more":        { "message": "حساس‌تر" },
+  "sensitivity_accurate":    { "message": "دقیق‌تر" },
+
+  "setting_singing_label":   { "message": "قطع آواز و صداها" },
+  "setting_singing_desc":    { "message": "شامل a cappella و صداهای پس‌زمینه" },
+  "setting_badge_label":     { "message": "نمایش نشان وضعیت" },
+  "setting_badge_desc":      { "message": "نشانگر قطع صدا روی آیکون افزونه" },
+
+  "btn_reset_stats":         { "message": "بازنشانی آمار" },
+  "btn_about":               { "message": "درباره" },
+  "btn_advanced":            { "message": "تنظیمات پیشرفته ↗" },
+  "confirm_reset":           { "message": "آیا همه آمارهای قطع صدا بازنشانی شود؟" },
+  "saved_indicator":         { "message": "ذخیره شد ✓" },
+
+  "options_title":           { "message": "تنظیمات Sakina" },
+  "options_reset_stats":     { "message": "بازنشانی آمار" },
+  "confirm_reset_lifetime":  { "message": "آیا همه آمارها بازنشانی شود؟" },
+
+  "opt_section_platforms":        { "message": "پلتفرم‌ها" },
+  "opt_section_allowlist":        { "message": "هرگز خاموش نکن در" },
+  "opt_section_activity":         { "message": "فعالیت اخیر" },
+  "opt_section_stats":            { "message": "آمار" },
+  "opt_section_detection":        { "message": "تشخیص" },
+  "opt_section_general":          { "message": "عمومی" },
+
+  "opt_platform_youtube":         { "message": "YouTube" },
+  "opt_platform_instagram":       { "message": "Instagram" },
+  "opt_platform_facebook":        { "message": "Facebook" },
+  "opt_platform_tiktok":          { "message": "TikTok" },
+
+  "opt_allowlist_empty":          { "message": "هنوز موردی نیست" },
+  "opt_allowlist_placeholder":    { "message": "youtube.com/@نام_کانال" },
+  "opt_allowlist_btn_add":        { "message": "افزودن" },
+  "opt_allowlist_desc":           { "message": "آدرس کانال‌هایی را وارد کنید که موسیقی آن‌ها هرگز خاموش نشود." },
+
+  "opt_activity_empty":           { "message": "فعالیت اخیری وجود ندارد" },
+  "opt_activity_clear":           { "message": "پاک‌کردن تاریخچه" },
+
+  "opt_stat_muted":               { "message": "خاموش شده" },
+  "opt_stat_segments":            { "message": "بخش‌های مسدود" },
+  "opt_stat_videos":              { "message": "ویدیوهای پردازش‌شده" },
+  "opt_stat_accuracy":            { "message": "دقت" },
+  "opt_btn_export_csv":           { "message": "خروجی CSV" },
+  "opt_btn_reset_stats":          { "message": "بازنشانی آمار" },
+  "opt_confirm_reset_stats":      { "message": "همه آمارها بازنشانی شود؟ این قابل برگشت نیست." },
+
+  "opt_sensitivity_label":        { "message": "حساسیت موسیقی" },
+  "opt_sensitivity_desc":         { "message": "حداقل اطمینان هوش مصنوعی برای فعال‌سازی خاموش‌کردن" },
+  "opt_sensitivity_left":         { "message": "← حساس‌تر (ممکن است بیشتر خاموش کند)" },
+  "opt_sensitivity_right":        { "message": "(مثبت‌های کاذب کمتر) دقیق‌تر →" },
+
+  "opt_singing_label":            { "message": "خاموش‌کردن آواز و صداها" },
+  "opt_singing_desc":             { "message": "شامل a cappella، گروه‌های کُر و صداهای پس‌زمینه" },
+  "opt_enable_label":             { "message": "فعال‌سازی Sakina" },
+  "opt_enable_desc":              { "message": "کلید اصلی روشن/خاموش" },
+  "opt_badge_label":              { "message": "نمایش نشان وضعیت" },
+  "opt_badge_desc":               { "message": "هنگام خاموش‌شدن، 🔇 روی آیکون نمایش می‌دهد" },
+
+  "opt_welcome_title":            { "message": "به Sakina خوش آمدید 👋" },
+  "opt_welcome_body":             { "message": "تنظیمات شما به‌طور خودکار ذخیره می‌شود. هر ویدیویی را باز کنید — Sakina مدل هوش مصنوعی را بار اول بارگذاری می‌کند (~۵ ثانیه)، سپس کاملاً آفلاین کار می‌کند." },
+
+  "opt_footer_bug":               { "message": "گزارش اشکال" },
+  "opt_footer_about":             { "message": "درباره" },
+  "opt_footer_made":              { "message": "ساخته‌شده با دقت" },
+
+  "about_quran_arabic":           { "message": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا" },
+  "about_quran_transliteration":  { "message": "Wa man yattaqillāha yaj'al lahu makhrajan" },
+  "about_quran_translation":      { "message": "و هر کس از خدا بترسد — برایش راه خروجی قرار می‌دهد." },
+  "about_quran_reference":        { "message": "سوره الطلاق، ۶۵:۲" },
+  "about_title":                  { "message": "درباره Sakina" },
+  "about_what_title":             { "message": "Sakina چیست؟" },
+  "about_what_body":              { "message": "Sakina یک افزونه رایگان کروم است که با استفاده از هوش مصنوعی روی دستگاه، موسیقی را در یوتیوب، اینستاگرام، فیسبوک و تیک‌تاک به‌طور خودکار تشخیص داده و قطع می‌کند. گفتار، تلاوت قرآن و صداهای محیط همیشه به‌صورت عادی پخش می‌شوند — فقط موسیقی قطع می‌شود." },
+  "about_why_title":              { "message": "چرا ساخته شد؟" },
+  "about_why_body":               { "message": "این افزونه به‌عنوان هدیه‌ای برای جامعه مسلمان ساخته شد. بسیاری از ما می‌خواهیم از ویدیوهای مفید بهره ببریم بدون اینکه موسیقی وارد قلب‌هایمان شود. قلب نمی‌تواند هم قرآن و هم موسیقی را در خود جای دهد — پس این ابزار برای محافظت از آن ساخته شد.\n\nبدون اشتراک. بدون حساب کاربری. بدون جمع‌آوری داده. برای هر مسلمان در جهان رایگان، برای رضای الله." },
+  "about_dua_title":              { "message": "یک درخواست" },
+  "about_dua_body":               { "message": "من در مقابل چیزی نمی‌خواهم جز دعای شما. اگر این افزونه به شما سود رسانده، لطفاً برای من، خانواده‌ام و همه مسلمانان دعا کنید. از الله بخواهید که این عمل کوچک را بپذیرد و قلب‌هایمان را ثابت نگه دارد.\n\nالله آن را منبع خیر قرار دهد در روزی که اعمال بیشترین اهمیت را دارند." },
+  "about_dua_arabic":             { "message": "اللَّهُمَّ تَقَبَّل مِنَّا" },
+  "about_dua_arabic_meaning":     { "message": "خدایا، از ما بپذیر." },
+  "about_footer_version":         { "message": "Sakina" },
+  "about_footer_free":            { "message": "برای همیشه رایگان · برای امت · لوجه‌الله" }
+}

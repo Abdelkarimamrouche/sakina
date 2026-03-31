@@ -1,0 +1,139 @@
+{
+  "ext_name":                { "message": "Sakina — Silenciar Música Automaticamente" },
+  "ext_short_name":          { "message": "Sakina" },
+  "ext_description":         { "message": "Detecta e silencia automaticamente músicas no YouTube, Instagram, Facebook e TikTok usando IA. Voz e sons ambientes continuam normalmente." },
+
+  "toggle_enable":           { "message": "Ativar Sakina" },
+  "toggle_disable":          { "message": "Desativar Sakina" },
+
+  "status_loading_title":    { "message": "Carregando Modelo de IA" },
+  "status_loading_sub":      { "message": "Primeiro carregamento ~5–10s, depois em cache" },
+  "status_muted_title":      { "message": "Música Detectada — Silenciado" },
+  "status_muted_sub":        { "message": "O áudio voltará quando a música terminar" },
+  "status_error_title":      { "message": "Erro no Classificador" },
+  "status_error_sub":        { "message": "Recarregue a página para tentar novamente" },
+  "status_listening_title":  { "message": "Ouvindo — Sem Música" },
+  "status_listening_sub":    { "message": "Áudio funcionando normalmente" },
+
+  "idle_title":              { "message": "Nenhum vídeo detectado" },
+  "idle_sub":                { "message": "O Sakina ativa automaticamente no YouTube, Instagram, Facebook e TikTok." },
+
+  "stat_music_muted":        { "message": "Música silenciada" },
+  "stat_segments":           { "message": "Trechos bloqueados" },
+
+  "section_detection":       { "message": "Configurações de Detecção" },
+  "setting_sensitivity_label": { "message": "Sensibilidade Musical" },
+  "setting_sensitivity_desc":  { "message": "Nível de confiança necessário para silenciar" },
+  "sensitivity_more":        { "message": "Mais sensível" },
+  "sensitivity_accurate":    { "message": "Mais preciso" },
+
+  "setting_singing_label":   { "message": "Silenciar Canto e Vocais" },
+  "setting_singing_desc":    { "message": "Inclui a cappella e vocais de fundo" },
+  "setting_badge_label":     { "message": "Mostrar Emblema de Status" },
+  "setting_badge_desc":      { "message": "Indicador de silêncio no ícone da extensão" },
+
+  "btn_reset_stats":         { "message": "Resetar estatísticas" },
+  "btn_about":               { "message": "Sobre" },
+  "btn_advanced":            { "message": "Configurações avançadas ↗" },
+  "confirm_reset":           { "message": "Resetar todas as estatísticas de silêncio?" },
+  "saved_indicator":         { "message": "Salvo ✓" },
+
+  "options_title":           { "message": "Configurações do Sakina" },
+  "options_reset_stats":     { "message": "Resetar Estatísticas" },
+  "confirm_reset_lifetime":  { "message": "Resetar todas as estatísticas?" },
+
+  "section_platforms":       { "message": "Plataformas" },
+  "section_allowlist":       { "message": "Nunca silenciar em" },
+  "section_activity":        { "message": "Atividade Recente" },
+  "section_stats":           { "message": "Estatísticas" },
+
+  "platform_youtube":        { "message": "YouTube" },
+  "platform_instagram":      { "message": "Instagram" },
+  "platform_facebook":       { "message": "Facebook" },
+  "platform_tiktok":         { "message": "TikTok" },
+
+  "allowlist_placeholder":   { "message": "Digite URL ou canal..." },
+  "allowlist_add":           { "message": "Adicionar" },
+  "allowlist_empty":         { "message": "Nenhum item ainda" },
+
+  "activity_empty":          { "message": "Nenhuma atividade recente" },
+  "activity_last_24h":       { "message": "Últimas 24h" },
+  "btn_clear_activity":      { "message": "Limpar histórico" },
+
+  "stat_muted_time":         { "message": "Tempo silenciado" },
+  "stat_mute_count":         { "message": "Segmentos silenciados" },
+  "stat_videos":             { "message": "Vídeos processados" },
+  "stat_accuracy":           { "message": "Precisão" },
+  "stat_breakdown":          { "message": "Por plataforma" },
+
+  "btn_export_csv":          { "message": "Exportar CSV" },
+  "confirm_reset_all":       { "message": "Resetar todas as estatísticas?" },
+  "confirm_clear_activity":  { "message": "Limpar histórico de atividade?" },
+
+  "time_just_now":           { "message": "agora" },
+  "time_ago":                { "message": "atrás" },
+  "time_over_24h":           { "message": "24h+ atrás" },
+
+  "opt_section_platforms":        { "message": "Plataformas" },
+  "opt_section_allowlist":        { "message": "Nunca Silenciar Em" },
+  "opt_section_activity":         { "message": "Atividade Recente" },
+  "opt_section_stats":            { "message": "Estatísticas" },
+  "opt_section_detection":        { "message": "Detecção" },
+  "opt_section_general":          { "message": "Geral" },
+
+  "opt_platform_youtube":         { "message": "YouTube" },
+  "opt_platform_instagram":       { "message": "Instagram" },
+  "opt_platform_facebook":        { "message": "Facebook" },
+  "opt_platform_tiktok":          { "message": "TikTok" },
+
+  "opt_allowlist_empty":          { "message": "Nenhum item ainda" },
+  "opt_allowlist_placeholder":    { "message": "youtube.com/@NomeDoCanal" },
+  "opt_allowlist_btn_add":        { "message": "Adicionar" },
+  "opt_allowlist_desc":           { "message": "Adicione URLs de canais ou caminhos onde a música nunca deve ser silenciada." },
+
+  "opt_activity_empty":           { "message": "Nenhuma atividade recente" },
+  "opt_activity_clear":           { "message": "Limpar histórico" },
+
+  "opt_stat_muted":               { "message": "Silenciado" },
+  "opt_stat_segments":            { "message": "Trechos Bloqueados" },
+  "opt_stat_videos":              { "message": "Vídeos Processados" },
+  "opt_stat_accuracy":            { "message": "Precisão" },
+  "opt_btn_export_csv":           { "message": "Exportar CSV" },
+  "opt_btn_reset_stats":          { "message": "Resetar estatísticas" },
+  "opt_confirm_reset_stats":      { "message": "Resetar todas as estatísticas? Isso não pode ser desfeito." },
+
+  "opt_sensitivity_label":        { "message": "Sensibilidade Musical" },
+  "opt_sensitivity_desc":         { "message": "Confiança mínima da IA para acionar o silêncio" },
+  "opt_sensitivity_left":         { "message": "← Sensível (pode silenciar mais)" },
+  "opt_sensitivity_right":        { "message": "(menos falsos positivos) Estrito →" },
+
+  "opt_singing_label":            { "message": "Silenciar Canto e Vocais" },
+  "opt_singing_desc":             { "message": "Inclui a cappella, corais e vocais de fundo" },
+  "opt_enable_label":             { "message": "Ativar Sakina" },
+  "opt_enable_desc":              { "message": "Chave mestre de ativação" },
+  "opt_badge_label":              { "message": "Mostrar Emblema de Status" },
+  "opt_badge_desc":               { "message": "Exibe 🔇 no ícone da extensão quando silenciado" },
+
+  "opt_welcome_title":            { "message": "Bem-vindo ao Sakina 👋" },
+  "opt_welcome_body":             { "message": "Suas preferências são salvas automaticamente. Abra qualquer vídeo — o Sakina carregará o modelo de IA na primeira vez (~5 segundos) e depois funcionará totalmente offline." },
+
+  "opt_footer_bug":               { "message": "Reportar um bug" },
+  "opt_footer_about":             { "message": "Sobre" },
+  "opt_footer_made":              { "message": "Feito com cuidado" },
+
+  "about_quran_arabic":           { "message": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا" },
+  "about_quran_transliteration":  { "message": "Wa man yattaqillāha yaj'al lahu makhrajan" },
+  "about_quran_translation":      { "message": "E quem teme a Allah — Ele lhe abrirá uma saída." },
+  "about_quran_reference":        { "message": "Surah At-Talaq, 65:2" },
+  "about_title":                  { "message": "Sobre o Sakina" },
+  "about_what_title":             { "message": "O que é o Sakina?" },
+  "about_what_body":              { "message": "Sakina é uma extensão gratuita para Chrome que detecta e silencia automaticamente a música no YouTube, Instagram, Facebook e TikTok usando inteligência artificial no próprio dispositivo. Voz, recitação do Alcorão e sons ambientes sempre tocam normalmente — apenas a música é silenciada." },
+  "about_why_title":              { "message": "Por que foi criado?" },
+  "about_why_body":               { "message": "Esta extensão foi criada como um presente para a comunidade muçulmana. Muitos de nós queremos nos beneficiar de vídeos úteis sem que a música entre em nossos corações. O coração não pode conter ao mesmo tempo o Alcorão e a música — então esta ferramenta foi construída para protegê-lo.\n\nSem assinatura. Sem conta. Sem coleta de dados. Gratuita para todo muçulmano no mundo, por amor a Allah." },
+  "about_dua_title":              { "message": "Um Pedido" },
+  "about_dua_body":               { "message": "Não peço nada em troca, exceto a sua Du'a. Se esta extensão te beneficiou, por favor faça Du'a por mim, pela minha família e por todos os muçulmanos. Peça a Allah que aceite esta pequena ação e que mantenha nossos corações firmes.\n\nQue Allah faça disso uma fonte de bem no Dia em que as ações mais importarão." },
+  "about_dua_arabic":             { "message": "اللَّهُمَّ تَقَبَّل مِنَّا" },
+  "about_dua_arabic_meaning":     { "message": "Ó Allah, aceita de nós." },
+  "about_footer_version":         { "message": "Sakina" },
+  "about_footer_free":            { "message": "Gratuito para sempre · Para a Ummah · li-wajhillah" }
+}

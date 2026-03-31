@@ -1,5 +1,5 @@
 /**
- * MusicShield — Shared Constants
+ * Sakina — Shared Constants
  * Single source of truth for all configuration values used across
  * background, content scripts, popup, and options.
  */
@@ -68,6 +68,16 @@ export const STORAGE_KEYS = {
   STATS_VIDEOS_PROCESSED: 'statsVideosProcessed',
   ONBOARDING_DONE: 'onboardingDone',
   MODEL_CACHED: 'modelCached',
+  // Platform-specific toggles
+  ENABLED_YOUTUBE: 'enabledYouTube',
+  ENABLED_INSTAGRAM: 'enabledInstagram',
+  ENABLED_FACEBOOK: 'enabledFacebook',
+  ENABLED_TIKTOK: 'enabledTikTok',
+  // Advanced settings
+  ALLOWLIST: 'allowlist',
+  ACTIVITY_LOG: 'activityLog',
+  // Stats by platform
+  STATS_BY_PLATFORM: 'statsByPlatform',
 };
 
 // ─── Default Settings ────────────────────────────────────────────────────────
@@ -83,6 +93,11 @@ export const DEFAULT_SETTINGS = {
   [STORAGE_KEYS.STATS_VIDEOS_PROCESSED]: 0,
   [STORAGE_KEYS.ONBOARDING_DONE]: false,
   [STORAGE_KEYS.MODEL_CACHED]: false,
+  // Platform toggles (all enabled by default)
+  [STORAGE_KEYS.ENABLED_YOUTUBE]: true,
+  [STORAGE_KEYS.ENABLED_INSTAGRAM]: true,
+  [STORAGE_KEYS.ENABLED_FACEBOOK]: true,
+  [STORAGE_KEYS.ENABLED_TIKTOK]: true,
 };
 
 // ─── Message Types ────────────────────────────────────────────────────────────
@@ -129,7 +144,16 @@ export function getYamnetModelUrl() {
   return _yamnetModelUrl;
 }
 
+// ─── Platform Name → Storage Key Mapping ─────────────────────────────────────
+
+export const PLATFORM_TO_STORAGE_KEY = {
+  youtube:   STORAGE_KEYS.ENABLED_YOUTUBE,
+  instagram: STORAGE_KEYS.ENABLED_INSTAGRAM,
+  facebook:  STORAGE_KEYS.ENABLED_FACEBOOK,
+  tiktok:    STORAGE_KEYS.ENABLED_TIKTOK,
+};
+
 // ─── Misc ─────────────────────────────────────────────────────────────────────
 
-export const EXTENSION_VERSION = '1.0.0';
+export const EXTENSION_VERSION = '1.3.0';
 export const MIN_VIDEO_DURATION_SECONDS = 3; // Don't process very short clips

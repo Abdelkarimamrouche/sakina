@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * MusicShield — Package Script
+ * Sakina — Package Script
  *
  * Produces a Chrome Web Store ready .zip from the dist/ folder.
  * Usage: node scripts/package.js
  *
- * Output: music-shield-v{version}.zip
+ * Output: sakina-v{version}.zip
  */
 
 const fs = require('fs');
@@ -17,7 +17,7 @@ const DIST = path.join(ROOT, 'dist');
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf-8'));
 const version = manifest.version;
 
-const outputName = `music-shield-v${version}.zip`;
+const outputName = `sakina-v${version}.zip`;
 const outputPath = path.join(ROOT, outputName);
 
 // Validate dist exists

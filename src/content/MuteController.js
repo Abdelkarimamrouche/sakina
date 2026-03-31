@@ -1,5 +1,5 @@
 /**
- * MusicShield — MuteController
+ * Sakina — MuteController
  *
  * Bridges AudioPipeline (mute/unmute execution) and YamNetClassifier (decisions).
  * Implements a sliding window algorithm to prevent rapid oscillation:
@@ -87,7 +87,7 @@ export class MuteController {
     this._muteStartTime = Date.now();
     this._muteSegmentCount++;
     this._setState(EXTENSION_STATE.MUTED);
-    console.info('[MusicShield:controller] 🔇 Music detected — muting audio');
+    console.info('[Sakina:controller] 🔇 Music detected — muting audio');
   }
 
   _doUnmute() {
@@ -100,7 +100,7 @@ export class MuteController {
     }
 
     this._setState(EXTENSION_STATE.LISTENING);
-    console.info('[MusicShield:controller] 🔊 Music ended — restoring audio');
+    console.info('[Sakina:controller] 🔊 Music ended — restoring audio');
   }
 
   // ─── State Management ──────────────────────────────────────────────────────

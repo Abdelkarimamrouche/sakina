@@ -1,0 +1,107 @@
+{
+  "ext_name":                { "message": "Sakina — স্বয়ংক্রিয় সঙ্গীত নিঃশব্দ" },
+  "ext_short_name":          { "message": "Sakina" },
+  "ext_description":         { "message": "AI ব্যবহার করে YouTube, Instagram, Facebook ও TikTok-এ সঙ্গীত স্বয়ংক্রিয়ভাবে শনাক্ত করে নিঃশব্দ করে। কথা ও প্রাকৃতিক শব্দ স্বাভাবিকভাবে চলতে থাকে।" },
+
+  "toggle_enable":           { "message": "Sakina সক্রিয় করুন" },
+  "toggle_disable":          { "message": "Sakina নিষ্ক্রিয় করুন" },
+
+  "status_loading_title":    { "message": "AI মডেল লোড হচ্ছে" },
+  "status_loading_sub":      { "message": "প্রথমবার ~৫-১০ সেকেন্ড, তারপর সংরক্ষিত" },
+  "status_muted_title":      { "message": "সঙ্গীত শনাক্ত — নিঃশব্দ" },
+  "status_muted_sub":        { "message": "সঙ্গীত শেষ হলে শব্দ ফিরবে" },
+  "status_error_title":      { "message": "শ্রেণীবদ্ধকারী ত্রুটি" },
+  "status_error_sub":        { "message": "পুনরায় চেষ্টা করতে পেজ রিলোড করুন" },
+  "status_listening_title":  { "message": "শুনছে — কোনো সঙ্গীত নেই" },
+  "status_listening_sub":    { "message": "অডিও স্বাভাবিকভাবে চলছে" },
+
+  "idle_title":              { "message": "কোনো ভিডিও শনাক্ত হয়নি" },
+  "idle_sub":                { "message": "Sakina YouTube, Instagram, Facebook ও TikTok-এ স্বয়ংক্রিয়ভাবে সক্রিয় হয়।" },
+
+  "stat_music_muted":        { "message": "সঙ্গীত নিঃশব্দ" },
+  "stat_segments":           { "message": "অংশ অবরুদ্ধ" },
+
+  "section_detection":       { "message": "শনাক্তকরণ সেটিংস" },
+  "setting_sensitivity_label": { "message": "সঙ্গীত সংবেদনশীলতা" },
+  "setting_sensitivity_desc":  { "message": "নিঃশব্দ করতে AI-এর বিশ্বাসযোগ্যতার মাত্রা" },
+  "sensitivity_more":        { "message": "বেশি সংবেদনশীল" },
+  "sensitivity_accurate":    { "message": "বেশি নির্ভুল" },
+
+  "setting_singing_label":   { "message": "গান ও কণ্ঠস্বর নিঃশব্দ করুন" },
+  "setting_singing_desc":    { "message": "a cappella এবং পটভূমির কণ্ঠস্বর অন্তর্ভুক্ত" },
+  "setting_badge_label":     { "message": "স্ট্যাটাস ব্যাজ দেখান" },
+  "setting_badge_desc":      { "message": "আইকনে নিঃশব্দ নির্দেশক" },
+
+  "btn_reset_stats":         { "message": "পরিসংখ্যান রিসেট করুন" },
+  "btn_about":               { "message": "সম্পর্কে" },
+  "btn_advanced":            { "message": "উন্নত সেটিংস ↗" },
+  "confirm_reset":           { "message": "সমস্ত নিঃশব্দ পরিসংখ্যান রিসেট করবেন?" },
+  "saved_indicator":         { "message": "সংরক্ষিত ✓" },
+
+  "options_title":           { "message": "Sakina সেটিংস" },
+  "options_reset_stats":     { "message": "পরিসংখ্যান রিসেট" },
+  "confirm_reset_lifetime":  { "message": "সমস্ত পরিসংখ্যান রিসেট করবেন?" },
+
+  "opt_section_platforms":        { "message": "প্ল্যাটফর্ম" },
+  "opt_section_allowlist":        { "message": "কখনো নিঃশব্দ করবেন না" },
+  "opt_section_activity":         { "message": "সাম্প্রতিক কার্যকলাপ" },
+  "opt_section_stats":            { "message": "পরিসংখ্যান" },
+  "opt_section_detection":        { "message": "শনাক্তকরণ" },
+  "opt_section_general":          { "message": "সাধারণ" },
+
+  "opt_platform_youtube":         { "message": "YouTube" },
+  "opt_platform_instagram":       { "message": "Instagram" },
+  "opt_platform_facebook":        { "message": "Facebook" },
+  "opt_platform_tiktok":          { "message": "TikTok" },
+
+  "opt_allowlist_empty":          { "message": "এখনো কোনো আইটেম নেই" },
+  "opt_allowlist_placeholder":    { "message": "youtube.com/@চ্যানেলের_নাম" },
+  "opt_allowlist_btn_add":        { "message": "যোগ করুন" },
+  "opt_allowlist_desc":           { "message": "চ্যানেল URL যোগ করুন যেখানে সঙ্গীত কখনো নিঃশব্দ হবে না।" },
+
+  "opt_activity_empty":           { "message": "কোনো সাম্প্রতিক কার্যকলাপ নেই" },
+  "opt_activity_clear":           { "message": "ইতিহাস মুছুন" },
+
+  "opt_stat_muted":               { "message": "নিঃশব্দ" },
+  "opt_stat_segments":            { "message": "অবরুদ্ধ অংশ" },
+  "opt_stat_videos":              { "message": "প্রক্রিয়াকৃত ভিডিও" },
+  "opt_stat_accuracy":            { "message": "নির্ভুলতা" },
+  "opt_btn_export_csv":           { "message": "CSV রপ্তানি" },
+  "opt_btn_reset_stats":          { "message": "পরিসংখ্যান রিসেট" },
+  "opt_confirm_reset_stats":      { "message": "সব পরিসংখ্যান রিসেট করবেন? এটি পূর্বাবস্থায় ফেরানো যাবে না।" },
+
+  "opt_sensitivity_label":        { "message": "সঙ্গীত সংবেদনশীলতা" },
+  "opt_sensitivity_desc":         { "message": "নিঃশব্দ করতে AI-এর ন্যূনতম আস্থার স্তর" },
+  "opt_sensitivity_left":         { "message": "← সংবেদনশীল (বেশি নিঃশব্দ করতে পারে)" },
+  "opt_sensitivity_right":        { "message": "(কম মিথ্যা শনাক্তকরণ) কঠোর →" },
+
+  "opt_singing_label":            { "message": "গান ও কণ্ঠস্বর নিঃশব্দ করুন" },
+  "opt_singing_desc":             { "message": "a cappella, গায়কদল এবং পটভূমির কণ্ঠস্বর অন্তর্ভুক্ত" },
+  "opt_enable_label":             { "message": "Sakina সক্রিয় করুন" },
+  "opt_enable_desc":              { "message": "মূল চালু/বন্ধ সুইচ" },
+  "opt_badge_label":              { "message": "স্ট্যাটাস ব্যাজ দেখান" },
+  "opt_badge_desc":               { "message": "নিঃশব্দ হলে আইকনে 🔇 প্রদর্শন করে" },
+
+  "opt_welcome_title":            { "message": "Sakina-এ স্বাগতম 👋" },
+  "opt_welcome_body":             { "message": "আপনার পছন্দ স্বয়ংক্রিয়ভাবে সংরক্ষিত হয়। যেকোনো ভিডিও খুলুন — Sakina প্রথমবার AI মডেল লোড করবে (~৫ সেকেন্ড), তারপর সম্পূর্ণ অফলাইনে চলবে।" },
+
+  "opt_footer_bug":               { "message": "বাগ রিপোর্ট করুন" },
+  "opt_footer_about":             { "message": "সম্পর্কে" },
+  "opt_footer_made":              { "message": "যত্নসহকারে তৈরি" },
+
+  "about_quran_arabic":           { "message": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا" },
+  "about_quran_transliteration":  { "message": "ওয়া মাইঁ ইয়াত্তাকিল্লাহা ইয়াজ'আল লাহু মাখরাজা" },
+  "about_quran_translation":      { "message": "আর যে আল্লাহকে ভয় করে — তিনি তার জন্য একটি পথ বের করে দেন।" },
+  "about_quran_reference":        { "message": "সূরা আত-তালাক, ৬৫:২" },
+  "about_title":                  { "message": "Sakina সম্পর্কে" },
+  "about_what_title":             { "message": "Sakina কী?" },
+  "about_what_body":              { "message": "Sakina একটি বিনামূল্যের Chrome এক্সটেনশন যা ডিভাইসে AI ব্যবহার করে YouTube, Instagram, Facebook এবং TikTok-এ স্বয়ংক্রিয়ভাবে সঙ্গীত শনাক্ত করে নিঃশব্দ করে। কথা, কুরআন তেলাওয়াত এবং পরিবেশের শব্দ সবসময় স্বাভাবিকভাবে চলে — শুধু সঙ্গীত নিঃশব্দ হয়।" },
+  "about_why_title":              { "message": "কেন তৈরি করা হয়েছে?" },
+  "about_why_body":               { "message": "এই এক্সটেনশনটি মুসলিম সম্প্রদায়ের জন্য একটি উপহার হিসেবে তৈরি করা হয়েছে। আমাদের অনেকেই উপকারী ভিডিও থেকে উপকৃত হতে চান সঙ্গীত হৃদয়ে প্রবেশ না করিয়ে। হৃদয় কুরআন ও সঙ্গীত দুটোকে একসাথে ধারণ করতে পারে না — তাই এই টুলটি তাকে রক্ষা করতে তৈরি করা হয়েছে।\n\nকোনো সাবস্ক্রিপশন নেই। কোনো অ্যাকাউন্ট নেই। কোনো ডেটা সংগ্রহ নেই। আল্লাহর সন্তুষ্টির জন্য বিশ্বের প্রতিটি মুসলমানের জন্য বিনামূল্যে।" },
+  "about_dua_title":              { "message": "একটি অনুরোধ" },
+  "about_dua_body":               { "message": "আমি বিনিময়ে কিছু চাই না আপনার দোয়া ছাড়া। যদি এই এক্সটেনশন আপনার উপকারে আসে, অনুগ্রহ করে আমার, আমার পরিবার এবং সকল মুসলমানের জন্য দোয়া করুন। আল্লাহর কাছে প্রার্থনা করুন যেন তিনি এই ছোট কাজটি কবুল করেন এবং আমাদের হৃদয় দৃঢ় রাখেন।\n\nআল্লাহ যেন এটিকে সেদিনের জন্য কল্যাণের উৎস বানান যেদিন আমল সবচেয়ে বেশি গুরুত্বপূর্ণ হবে।" },
+  "about_dua_arabic":             { "message": "اللَّهُمَّ تَقَبَّل مِنَّا" },
+  "about_dua_arabic_meaning":     { "message": "হে আল্লাহ, আমাদের থেকে কবুল করুন।" },
+  "about_footer_version":         { "message": "Sakina" },
+  "about_footer_free":            { "message": "চিরকাল বিনামূল্যে · উম্মাহর জন্য · লি-ওয়াজহিল্লাহ" }
+}

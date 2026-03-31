@@ -1,0 +1,107 @@
+{
+  "ext_name":                { "message": "Sakina — Couper la musique automatiquement" },
+  "ext_short_name":          { "message": "Sakina" },
+  "ext_description":         { "message": "Détecte et coupe automatiquement la musique sur YouTube, Instagram, Facebook et TikTok grâce à l'IA. La parole et les sons ambiants restent audibles." },
+
+  "toggle_enable":           { "message": "Activer Sakina" },
+  "toggle_disable":          { "message": "Désactiver Sakina" },
+
+  "status_loading_title":    { "message": "Chargement du modèle IA" },
+  "status_loading_sub":      { "message": "Premier chargement ~5–10s, puis mis en cache" },
+  "status_muted_title":      { "message": "Musique détectée — Coupée" },
+  "status_muted_sub":        { "message": "L'audio reprendra à la fin de la musique" },
+  "status_error_title":      { "message": "Erreur du classificateur" },
+  "status_error_sub":        { "message": "Rechargez la page pour réessayer" },
+  "status_listening_title":  { "message": "Écoute en cours — Pas de musique" },
+  "status_listening_sub":    { "message": "L'audio fonctionne normalement" },
+
+  "idle_title":              { "message": "Aucune vidéo détectée" },
+  "idle_sub":                { "message": "Sakina s'active automatiquement sur YouTube, Instagram, Facebook et TikTok." },
+
+  "stat_music_muted":        { "message": "Musique coupée" },
+  "stat_segments":           { "message": "Segments bloqués" },
+
+  "section_detection":       { "message": "Paramètres de détection" },
+  "setting_sensitivity_label": { "message": "Sensibilité musicale" },
+  "setting_sensitivity_desc":  { "message": "Niveau de confiance requis par l'IA pour couper" },
+  "sensitivity_more":        { "message": "Plus sensible" },
+  "sensitivity_accurate":    { "message": "Plus précis" },
+
+  "setting_singing_label":   { "message": "Couper le chant et les voix" },
+  "setting_singing_desc":    { "message": "Inclut a cappella, voix de fond" },
+  "setting_badge_label":     { "message": "Afficher le badge de statut" },
+  "setting_badge_desc":      { "message": "Indicateur de coupure sur l'icône" },
+
+  "btn_reset_stats":         { "message": "Réinitialiser les stats" },
+  "btn_about":               { "message": "À propos" },
+  "btn_advanced":            { "message": "Paramètres avancés ↗" },
+  "confirm_reset":           { "message": "Réinitialiser toutes les statistiques ?" },
+  "saved_indicator":         { "message": "Enregistré ✓" },
+
+  "options_title":           { "message": "Paramètres Sakina" },
+  "options_reset_stats":     { "message": "Réinitialiser les statistiques" },
+  "confirm_reset_lifetime":  { "message": "Réinitialiser toutes les statistiques ?" },
+
+  "opt_section_platforms":        { "message": "Plateformes" },
+  "opt_section_allowlist":        { "message": "Ne jamais couper sur" },
+  "opt_section_activity":         { "message": "Activité récente" },
+  "opt_section_stats":            { "message": "Statistiques" },
+  "opt_section_detection":        { "message": "Détection" },
+  "opt_section_general":          { "message": "Général" },
+
+  "opt_platform_youtube":         { "message": "YouTube" },
+  "opt_platform_instagram":       { "message": "Instagram" },
+  "opt_platform_facebook":        { "message": "Facebook" },
+  "opt_platform_tiktok":          { "message": "TikTok" },
+
+  "opt_allowlist_empty":          { "message": "Aucun élément" },
+  "opt_allowlist_placeholder":    { "message": "youtube.com/@NomDeLaChaine" },
+  "opt_allowlist_btn_add":        { "message": "Ajouter" },
+  "opt_allowlist_desc":           { "message": "Ajoutez des URLs de chaînes où la musique ne doit jamais être coupée." },
+
+  "opt_activity_empty":           { "message": "Aucune activité récente" },
+  "opt_activity_clear":           { "message": "Effacer l'historique" },
+
+  "opt_stat_muted":               { "message": "Coupé" },
+  "opt_stat_segments":            { "message": "Segments bloqués" },
+  "opt_stat_videos":              { "message": "Vidéos traitées" },
+  "opt_stat_accuracy":            { "message": "Précision" },
+  "opt_btn_export_csv":           { "message": "Exporter CSV" },
+  "opt_btn_reset_stats":          { "message": "Réinitialiser les stats" },
+  "opt_confirm_reset_stats":      { "message": "Réinitialiser toutes les statistiques ? Cette action est irréversible." },
+
+  "opt_sensitivity_label":        { "message": "Sensibilité musicale" },
+  "opt_sensitivity_desc":         { "message": "Confiance minimale de l'IA pour déclencher la coupure" },
+  "opt_sensitivity_left":         { "message": "← Sensible (peut couper plus)" },
+  "opt_sensitivity_right":        { "message": "(moins de faux positifs) Strict →" },
+
+  "opt_singing_label":            { "message": "Couper le chant et les voix" },
+  "opt_singing_desc":             { "message": "Inclut a cappella, chœurs et voix de fond" },
+  "opt_enable_label":             { "message": "Activer Sakina" },
+  "opt_enable_desc":              { "message": "Interrupteur principal" },
+  "opt_badge_label":              { "message": "Afficher le badge de statut" },
+  "opt_badge_desc":               { "message": "Affiche 🔇 sur l'icône quand la musique est coupée" },
+
+  "opt_welcome_title":            { "message": "Bienvenue dans Sakina 👋" },
+  "opt_welcome_body":             { "message": "Vos préférences sont enregistrées automatiquement. Ouvrez n'importe quelle vidéo — Sakina chargera le modèle IA la première fois (~5 secondes), puis fonctionnera entièrement hors ligne." },
+
+  "opt_footer_bug":               { "message": "Signaler un bug" },
+  "opt_footer_about":             { "message": "À propos" },
+  "opt_footer_made":              { "message": "Fait avec soin" },
+
+  "about_quran_arabic":           { "message": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا" },
+  "about_quran_transliteration":  { "message": "Wa man yattaqillāha yaj'al lahu makhrajan" },
+  "about_quran_translation":      { "message": "Et quiconque craint Allah — Il lui ouvrira une issue." },
+  "about_quran_reference":        { "message": "Sourate At-Talaq, 65:2" },
+  "about_title":                  { "message": "À propos de Sakina" },
+  "about_what_title":             { "message": "Qu'est-ce que Sakina ?" },
+  "about_what_body":              { "message": "Sakina est une extension Chrome gratuite qui détecte et coupe automatiquement la musique sur YouTube, Instagram, Facebook et TikTok grâce à l'IA embarquée. La parole, la récitation du Coran et les sons ambiants sont toujours audibles — seule la musique est coupée." },
+  "about_why_title":              { "message": "Pourquoi a-t-elle été créée ?" },
+  "about_why_body":               { "message": "Cette extension a été créée comme un cadeau pour la communauté musulmane. Beaucoup d'entre nous veulent bénéficier de vidéos utiles sans que la musique n'entre dans nos cœurs. Le cœur ne peut contenir à la fois le Coran et la musique — cet outil a donc été construit pour le protéger.\n\nPas d'abonnement. Pas de compte. Aucune collecte de données. Gratuit pour chaque musulman dans le monde, pour l'amour d'Allah." },
+  "about_dua_title":              { "message": "Une demande" },
+  "about_dua_body":               { "message": "Je ne demande rien en retour sauf votre Dua. Si cette extension vous a été utile, faites Dua pour moi, ma famille et tous les musulmans. Demandez à Allah d'accepter cette petite action et de garder nos cœurs fermes.\n\nQu'Allah en fasse une source de bien le Jour où les actes compteront le plus." },
+  "about_dua_arabic":             { "message": "اللَّهُمَّ تَقَبَّل مِنَّا" },
+  "about_dua_arabic_meaning":     { "message": "Ô Allah, accepte de nous." },
+  "about_footer_version":         { "message": "Sakina" },
+  "about_footer_free":            { "message": "Gratuit pour toujours · Pour la Oumma · li-wajhillah" }
+}

@@ -1,5 +1,5 @@
 /**
- * MusicShield — Background Service Worker (Manifest V3)
+ * Sakina — Background Service Worker (Manifest V3)
  *
  * Responsibilities:
  *   - Initialize storage defaults on install/update
@@ -18,12 +18,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   await initializeDefaults();
 
   if (details.reason === 'install') {
-    console.info('[MusicShield:bg] Fresh install — opening onboarding tab');
+    console.info('[Sakina:bg] Fresh install — opening onboarding tab');
     chrome.tabs.create({
       url: chrome.runtime.getURL('options.html') + '?welcome=true',
     });
   } else if (details.reason === 'update') {
-    console.info(`[MusicShield:bg] Updated to ${details.previousVersion}`);
+    console.info(`[Sakina:bg] Updated to ${details.previousVersion}`);
   }
 });
 
@@ -36,7 +36,7 @@ function setBadge(tabId, text, color) {
   if (!tabId) return;
   tabBadgeState.set(tabId, { text, color });
   chrome.action.setBadgeText({ tabId, text: text || '' });
-  if (color) {
+  if (color && text) {
     chrome.action.setBadgeBackgroundColor({ tabId, color });
   }
 }
@@ -104,6 +104,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // ─── Status Handler ───────────────────────────────────────────────────────────
 
+const DEFAULT_ICON = {
+  16: 'icons/icon16.png',
+  32: 'icons/icon32.png',
+  48: 'icons/icon48.png',
+  128: 'icons/icon128.png',
+};
+
+const MUTED_ICON = {
+  16: 'icons/icon16-muted.png',
+  32: 'icons/icon32-muted.png',
+  48: 'icons/icon48-muted.png',
+  128: 'icons/icon128-muted.png',
+};
+
 function handleClassifierStatus(tabId, state) {
   if (!tabId) return;
 
@@ -111,13 +125,20 @@ function handleClassifierStatus(tabId, state) {
     [EXTENSION_STATE.LOADING]: { text: '⋯', color: '#f59e0b' },
     [EXTENSION_STATE.READY]: { text: '', color: '#22c55e' },
     [EXTENSION_STATE.LISTENING]: { text: '', color: '#22c55e' },
-    [EXTENSION_STATE.MUTED]: { text: '🔇', color: '#ef4444' },
+    [EXTENSION_STATE.MUTED]: { text: '', color: '#ef4444' },
     [EXTENSION_STATE.DISABLED]: { text: 'off', color: '#6b7280' },
     [EXTENSION_STATE.ERROR]: { text: '!', color: '#ef4444' },
   };
 
   const cfg = badgeConfig[state];
   if (cfg) setBadge(tabId, cfg.text, cfg.color);
+
+  // Swap icon between default and muted variant
+  const isMuted = state === EXTENSION_STATE.MUTED;
+  chrome.action.setIcon({
+    tabId,
+    path: isMuted ? MUTED_ICON : DEFAULT_ICON,
+  }).catch(() => {});
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -139,4 +160,4 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-console.info('[MusicShield:bg] Service worker started.');
+console.info('[Sakina:bg] Service worker started.');

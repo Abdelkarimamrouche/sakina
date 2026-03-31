@@ -3,159 +3,308 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MusicShield — Settings</title>
+  <title>Sakina — Settings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg-0: #0e0e11; --bg-1: #16161a; --bg-2: #1f1f24; --bg-3: #2a2a31;
-      --border: #2e2e36; --accent: #6c63ff; --accent-glow: rgba(108,99,255,0.2);
+      --bg-0: #060e09; --bg-1: #0d1410; --bg-2: #111a14; --bg-3: #162019;
+      --border: #1e3028; --accent: #1a7a45; --accent-glow: rgba(26,122,69,0.2);
       --red: #f04a4a; --green: #34d399; --amber: #f59e0b;
-      --text-0: #f0f0f5; --text-1: #a0a0b5; --text-2: #606075;
+      --text-0: #e8f0eb; --text-1: #8fa89a; --text-2: #4a6057;
       --font: 'DM Sans', sans-serif; --font-mono: 'DM Mono', monospace;
     }
     body { font-family: var(--font); background: var(--bg-0); color: var(--text-0); min-height: 100vh; -webkit-font-smoothing: antialiased; }
-    .page { max-width: 600px; margin: 0 auto; padding: 40px 24px 80px; }
+    .page { max-width: 700px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* Header */
     .page-header { display: flex; align-items: center; gap: 14px; margin-bottom: 40px; }
-    .page-icon { width: 44px; height: 44px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 20px var(--accent-glow); }
+    .page-icon { width: 44px; height: 44px; background: rgba(26, 122, 69, 0.12); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px var(--accent-glow); }
     h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.4px; }
     .version { font-size: 12px; font-family: var(--font-mono); color: var(--text-2); background: var(--bg-3); padding: 3px 8px; border-radius: 5px; margin-top: 4px; display: inline-block; }
+
+    /* Section */
     .section { margin-bottom: 32px; }
     .section-title { font-size: 11px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+
+    /* Cards */
     .card { background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
     .card-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
     .card-row:last-child { border-bottom: none; }
     .row-label { font-size: 14px; font-weight: 500; color: var(--text-0); }
     .row-desc { font-size: 12px; color: var(--text-2); margin-top: 3px; }
-    .toggle-wrap { position: relative; }
+
+    /* Platform Row */
+    .platform-row { display: flex; align-items: center; gap: 12px; }
+    .platform-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--bg-3); flex-shrink: 0; overflow: hidden; }
+
+    /* Toggle */
+    .toggle-wrap { position: relative; flex-shrink: 0; }
     .toggle-input { position: absolute; opacity: 0; width: 0; height: 0; }
     .toggle-track { display: flex; align-items: center; width: 46px; height: 26px; background: var(--bg-3); border-radius: 100px; padding: 3px; cursor: pointer; border: 1px solid var(--border); transition: 180ms; }
     .toggle-input:checked + .toggle-track { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
     .toggle-thumb { width: 18px; height: 18px; background: var(--text-2); border-radius: 50%; transition: 180ms; }
     .toggle-input:checked + .toggle-track .toggle-thumb { transform: translateX(20px); background: #fff; }
-    .slider-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-    .slider-header { display: flex; justify-content: space-between; margin-bottom: 14px; }
-    .slider-val { font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--accent); background: rgba(108,99,255,0.12); padding: 3px 10px; border-radius: 6px; }
-    input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: var(--bg-3); border-radius: 2px; cursor: pointer; }
-    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; border: 2px solid var(--bg-0); box-shadow: 0 0 8px var(--accent-glow); }
-    .slider-labels { display: flex; justify-content: space-between; margin-top: 8px; }
-    .slider-labels span { font-size: 11px; font-family: var(--font-mono); color: var(--text-2); }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-    .stat-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
-    .stat-num { font-size: 28px; font-weight: 600; font-family: var(--font-mono); letter-spacing: -1px; color: var(--text-0); }
-    .stat-name { font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 5px; }
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 8px; font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: 180ms; }
+
+    /* Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px; padding: 18px 16px; text-align: center; }
+    .stat-num { font-size: 24px; font-weight: 600; font-family: var(--font-mono); letter-spacing: -1px; color: var(--text-0); }
+    .stat-name { font-size: 10px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 5px; }
+
+    /* Platform Stats Bars */
+    .platform-bars { background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-label { font-size: 12px; width: 80px; color: var(--text-1); }
+    .bar-track { flex: 1; height: 8px; background: var(--bg-3); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.3s; }
+    .bar-percent { font-size: 12px; font-family: var(--font-mono); color: var(--text-2); width: 40px; text-align: right; }
+
+    /* Activity Log */
+    .activity-log { background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px; max-height: 280px; overflow-y: auto; }
+    .activity-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon { font-size: 16px; }
+    .activity-info { flex: 1; }
+    .activity-platform { font-size: 13px; font-weight: 500; color: var(--text-0); }
+    .activity-time { font-size: 11px; color: var(--text-2); }
+    .activity-duration { font-size: 12px; font-family: var(--font-mono); color: var(--accent); background: rgba(26,122,69,0.12); padding: 3px 8px; border-radius: 4px; }
+    .activity-empty { padding: 40px 20px; text-align: center; color: var(--text-2); font-size: 13px; }
+
+    /* Allowlist */
+    .allowlist-container { background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px; }
+    .allowlist-items { max-height: 200px; overflow-y: auto; }
+    .allowlist-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .allowlist-item:last-child { border-bottom: none; }
+    .allowlist-url { font-size: 13px; font-family: var(--font-mono); color: var(--text-1); word-break: break-all; }
+    .allowlist-remove { background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; padding: 4px 8px; opacity: 0.6; transition: opacity 0.2s; }
+    .allowlist-remove:hover { opacity: 1; }
+    .allowlist-empty { padding: 30px 20px; text-align: center; color: var(--text-2); font-size: 13px; }
+    .allowlist-add { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); }
+    .allowlist-input { flex: 1; background: var(--bg-2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; font-family: var(--font-mono); font-size: 13px; color: var(--text-0); }
+    .allowlist-input::placeholder { color: var(--text-2); }
+    .allowlist-input:focus { outline: none; border-color: var(--accent); }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; border-radius: 8px; font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: 180ms; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #23955a; }
     .btn-ghost { background: var(--bg-2); color: var(--text-1); border: 1px solid var(--border); }
     .btn-ghost:hover { background: var(--bg-3); color: var(--text-0); }
     .btn-danger { background: rgba(240,74,74,0.12); color: var(--red); border: 1px solid rgba(240,74,74,0.25); }
     .btn-danger:hover { background: rgba(240,74,74,0.2); }
-    .actions { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
-    #saved-indicator { font-size: 12px; font-family: var(--font-mono); color: var(--green); opacity: 0; transition: opacity 0.3s; }
-    .welcome-banner { background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(108,99,255,0.05)); border: 1px solid rgba(108,99,255,0.3); border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; }
+    .btn-sm { padding: 8px 14px; font-size: 12px; }
+
+    /* Actions */
+    .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .actions-left { display: flex; gap: 8px; }
+
+    /* Welcome Banner */
+    .welcome-banner { background: linear-gradient(135deg, rgba(26,122,69,0.15), rgba(26,122,69,0.05)); border: 1px solid rgba(26,122,69,0.3); border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; }
     .welcome-banner h2 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
     .welcome-banner p { font-size: 13px; color: var(--text-1); line-height: 1.6; }
-    .hidden { display: none; }
+
+    /* Footer */
+    .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .footer-link { font-size: 12px; color: var(--text-2); text-decoration: none; }
+    .footer-link:hover { color: var(--accent); }
+
+    /* Utilities */
+    .hidden { display: none !important; }
+    .mt-12 { margin-top: 12px; }
   </style>
 </head>
 <body>
   <div class="page">
 
     <div class="page-header">
-      <div class="page-icon">🛡</div>
+      <div class="page-icon">
+        <svg width="26" height="26" viewBox="0 0 100 100" fill="none">
+          <path d="M50 4 L94 22 V52 C94 76 74 90 50 98 C26 90 6 76 6 52 V22 Z"
+            fill="#1a7a45" fill-opacity="0.15" stroke="#1a7a45" stroke-width="5" stroke-linejoin="round"/>
+          <g transform="translate(30,26)">
+            <ellipse cx="16" cy="40" rx="10" ry="7" transform="rotate(-15,16,40)" fill="#1a7a45"/>
+            <rect x="24" y="6" width="4" height="35" rx="2" fill="#1a7a45"/>
+            <path d="M28 6 C40 8 42 18 36 26" stroke="#1a7a45" stroke-width="4.5" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
       <div>
-        <h1>MusicShield</h1>
+        <h1 data-i18n="options_title">Sakina Settings</h1>
         <span class="version" id="version">v1.0.0</span>
       </div>
     </div>
 
     <!-- Welcome banner (shown on first install) -->
     <div class="welcome-banner hidden" id="welcome-banner">
-      <h2>Welcome to MusicShield 👋</h2>
-      <p>Your preferences are saved automatically. Open any YouTube video — MusicShield will load the AI model the first time (~5 seconds), then run fully offline from that point forward.</p>
+      <h2 data-i18n="opt_welcome_title">Welcome to Sakina 👋</h2>
+      <p data-i18n="opt_welcome_body">Your preferences are saved automatically. Open any YouTube video — Sakina will load the AI model the first time (~5 seconds), then run fully offline.</p>
     </div>
 
-    <!-- Detection settings -->
+    <!-- Platforms Section -->
     <div class="section">
-      <div class="section-title">Detection</div>
-
-      <div class="slider-card" style="margin-bottom:12px">
-        <div class="slider-header">
-          <div>
-            <div class="row-label">Music Sensitivity</div>
-            <div class="row-desc">Minimum AI confidence required to trigger muting</div>
-          </div>
-          <div class="slider-val" id="threshold-value">45%</div>
-        </div>
-        <input type="range" id="setting-threshold" min="20" max="85" step="5" value="45" />
-        <div class="slider-labels">
-          <span>← Sensitive (may mute more)</span>
-          <span>(fewer false positives) Strict →</span>
-        </div>
-      </div>
-
+      <div class="section-title" data-i18n="opt_section_platforms">Platforms</div>
       <div class="card">
         <div class="card-row">
-          <div>
-            <div class="row-label">Mute Singing &amp; Vocals</div>
-            <div class="row-desc">Includes a cappella, choirs, background vocals</div>
+          <div class="platform-row">
+            <div class="platform-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#FF0000"/>
+              </svg>
+            </div>
+            <div class="row-label" data-i18n="opt_platform_youtube">YouTube</div>
           </div>
           <label class="toggle-wrap">
-            <input type="checkbox" class="toggle-input" id="setting-singing" />
+            <input type="checkbox" class="toggle-input" id="toggle-youtube" />
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          </label>
+        </div>
+        <div class="card-row">
+          <div class="platform-row">
+            <div class="platform-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <defs>
+                  <radialGradient id="ig-grad" cx="30%" cy="107%" r="150%">
+                    <stop offset="0%" stop-color="#fdf497"/>
+                    <stop offset="5%" stop-color="#fdf497"/>
+                    <stop offset="45%" stop-color="#fd5949"/>
+                    <stop offset="60%" stop-color="#d6249f"/>
+                    <stop offset="90%" stop-color="#285AEB"/>
+                  </radialGradient>
+                </defs>
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="url(#ig-grad)"/>
+                <circle cx="12" cy="12" r="4.5" fill="none" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1.2" fill="white"/>
+              </svg>
+            </div>
+            <div class="row-label" data-i18n="opt_platform_instagram">Instagram</div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" class="toggle-input" id="toggle-instagram" />
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          </label>
+        </div>
+        <div class="card-row">
+          <div class="platform-row">
+            <div class="platform-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="12" fill="#1877F2"/>
+                <path d="M16.671 15.469l.469-3.047h-2.926v-1.977c0-.833.408-1.644 1.717-1.644h1.329V6.238s-1.206-.206-2.359-.206c-2.407 0-3.98 1.459-3.98 4.101v2.289H8.186v3.047h2.735V23.9A12.08 12.08 0 0 0 12 24a12.08 12.08 0 0 0 1.079-.1v-8.431h2.592z" fill="white"/>
+              </svg>
+            </div>
+            <div class="row-label" data-i18n="opt_platform_facebook">Facebook</div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" class="toggle-input" id="toggle-facebook" />
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          </label>
+        </div>
+        <div class="card-row">
+          <div class="platform-row">
+            <div class="platform-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" style="background:#000;border-radius:5px;">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.89a8.17 8.17 0 0 0 4.78 1.52V7a4.85 4.85 0 0 1-1.01-.31z" fill="white"/>
+              </svg>
+            </div>
+            <div class="row-label" data-i18n="opt_platform_tiktok">TikTok</div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" class="toggle-input" id="toggle-tiktok" />
             <div class="toggle-track"><div class="toggle-thumb"></div></div>
           </label>
         </div>
       </div>
     </div>
 
-    <!-- General -->
+    <!-- Allowlist Section -->
     <div class="section">
-      <div class="section-title">General</div>
-      <div class="card">
-        <div class="card-row">
-          <div>
-            <div class="row-label">Enable MusicShield</div>
-            <div class="row-desc">Master on/off switch</div>
-          </div>
-          <label class="toggle-wrap">
-            <input type="checkbox" class="toggle-input" id="setting-enabled" />
-            <div class="toggle-track"><div class="toggle-thumb"></div></div>
-          </label>
+      <div class="section-title" data-i18n="opt_section_allowlist">Never Mute On</div>
+      <div class="allowlist-container">
+        <div class="allowlist-items" id="allowlist-items">
+          <!-- Items populated by JS -->
         </div>
-        <div class="card-row">
-          <div>
-            <div class="row-label">Show Status Badge</div>
-            <div class="row-desc">Displays 🔇 on the extension icon when music is muted</div>
-          </div>
-          <label class="toggle-wrap">
-            <input type="checkbox" class="toggle-input" id="setting-badge" />
-            <div class="toggle-track"><div class="toggle-thumb"></div></div>
-          </label>
+        <div class="allowlist-add">
+          <input type="text" class="allowlist-input" id="allowlist-input" placeholder="youtube.com/@ChannelName" />
+          <button class="btn btn-primary btn-sm" id="btn-add-allowlist" data-i18n="opt_allowlist_btn_add">Add</button>
         </div>
+      </div>
+      <p style="font-size: 11px; color: var(--text-2); margin-top: 8px;" data-i18n="opt_allowlist_desc">
+        Add channel URLs or page paths where music should never be muted.
+      </p>
+    </div>
+
+    <!-- Activity Log Section -->
+    <div class="section">
+      <div class="section-title" data-i18n="opt_section_activity">Recent Activity</div>
+      <div class="activity-log" id="activity-log">
+        <!-- Items populated by JS -->
+      </div>
+      <div class="actions mt-12">
+        <span></span>
+        <button class="btn btn-ghost btn-sm" id="btn-clear-activity" data-i18n="opt_activity_clear">Clear history</button>
       </div>
     </div>
 
-    <!-- Stats -->
+    <!-- Statistics Section -->
     <div class="section">
-      <div class="section-title">Lifetime Statistics</div>
+      <div class="section-title" data-i18n="opt_section_stats">Statistics</div>
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-num" id="stat-muted-time">0s</div>
-          <div class="stat-name">Music muted</div>
+          <div class="stat-name" data-i18n="opt_stat_muted">Muted</div>
         </div>
         <div class="stat-card">
           <div class="stat-num" id="stat-mute-count">0</div>
-          <div class="stat-name">Segments blocked</div>
+          <div class="stat-name" data-i18n="opt_stat_segments">Segments Blocked</div>
         </div>
         <div class="stat-card">
           <div class="stat-num" id="stat-videos">0</div>
-          <div class="stat-name">Videos processed</div>
+          <div class="stat-name" data-i18n="opt_stat_videos">Videos Processed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-accuracy">--</div>
+          <div class="stat-name" data-i18n="opt_stat_accuracy">Accuracy</div>
         </div>
       </div>
-      <div class="actions">
-        <span id="saved-indicator">Saved ✓</span>
-        <button class="btn btn-danger" id="btn-reset-stats">Reset statistics</button>
+
+      <div class="platform-bars">
+        <div class="bar-row">
+          <span class="bar-label" data-i18n="opt_platform_youtube">YouTube</span>
+          <div class="bar-track"><div class="bar-fill" id="bar-youtube" style="width: 0%"></div></div>
+          <span class="bar-percent" id="percent-youtube">0%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label" data-i18n="opt_platform_instagram">Instagram</span>
+          <div class="bar-track"><div class="bar-fill" id="bar-instagram" style="width: 0%"></div></div>
+          <span class="bar-percent" id="percent-instagram">0%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label" data-i18n="opt_platform_facebook">Facebook</span>
+          <div class="bar-track"><div class="bar-fill" id="bar-facebook" style="width: 0%"></div></div>
+          <span class="bar-percent" id="percent-facebook">0%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label" data-i18n="opt_platform_tiktok">TikTok</span>
+          <div class="bar-track"><div class="bar-fill" id="bar-tiktok" style="width: 0%"></div></div>
+          <span class="bar-percent" id="percent-tiktok">0%</span>
+        </div>
       </div>
+
+      <div class="actions">
+        <div class="actions-left">
+          <button class="btn btn-ghost btn-sm" id="btn-export-csv" data-i18n="opt_btn_export_csv">Export CSV</button>
+        </div>
+        <button class="btn btn-danger btn-sm" id="btn-reset-stats" data-i18n="opt_btn_reset_stats">Reset all stats</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <a href="https://github.com/user/sakina/issues" target="_blank" class="footer-link" data-i18n="opt_footer_bug">Report a bug</a>
+      <a href="#" id="btn-about" class="footer-link" data-i18n="opt_footer_about">About</a>
+      <span class="footer-link" data-i18n="opt_footer_made">Made with care</span>
     </div>
 
   </div>

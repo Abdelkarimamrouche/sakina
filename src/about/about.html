@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Sakina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-0: #060e09; --bg-1: #0d1410; --bg-2: #111a14; --bg-3: #162019;
+      --border: #1e3028;
+      --accent: #1a7a45; --accent-glow: rgba(26, 122, 69, 0.2);
+      --gold: #c9a84c; --gold-glow: rgba(201, 168, 76, 0.15);
+      --text-0: #e8f0eb; --text-1: #8fa89a; --text-2: #4a6057;
+      --font: 'DM Sans', sans-serif;
+      --font-arabic: 'Amiri', 'Traditional Arabic', serif;
+    }
+    body {
+      font-family: var(--font);
+      background: var(--bg-0);
+      color: var(--text-0);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .page { max-width: 640px; margin: 0 auto; padding: 48px 28px 80px; }
+
+    /* ── Aya block ── */
+    .aya-block {
+      text-align: center;
+      padding: 40px 28px;
+      margin-bottom: 48px;
+      background: linear-gradient(135deg, rgba(26,122,69,0.06), rgba(201,168,76,0.04));
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      border-radius: 16px;
+      position: relative;
+    }
+    .aya-block::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 60px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .aya-arabic {
+      font-family: var(--font-arabic);
+      font-size: 28px;
+      line-height: 1.8;
+      color: var(--gold);
+      direction: rtl;
+      margin-bottom: 16px;
+      text-shadow: 0 0 40px rgba(201, 168, 76, 0.3);
+    }
+    .aya-transliteration {
+      font-size: 13px;
+      font-style: italic;
+      color: var(--text-2);
+      margin-bottom: 12px;
+      letter-spacing: 0.3px;
+    }
+    .aya-translation {
+      font-size: 16px;
+      color: var(--text-1);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+    .aya-reference {
+      font-size: 12px;
+      font-family: var(--font-mono, monospace);
+      color: var(--gold);
+      opacity: 0.7;
+      margin-top: 16px;
+    }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 40px; }
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+    .section-body {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text-1);
+      white-space: pre-line;
+    }
+
+    /* ── Dua block ── */
+    .dua-block {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 12px;
+      padding: 28px;
+      margin-top: 40px;
+    }
+    .dua-arabic-center {
+      text-align: center;
+      font-family: var(--font-arabic);
+      font-size: 22px;
+      color: var(--gold);
+      direction: rtl;
+      margin: 20px 0 8px;
+    }
+    .dua-meaning {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-2);
+      font-style: italic;
+    }
+
+    /* ── Shield header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+    .header-icon {
+      width: 48px; height: 48px;
+      background: rgba(26, 122, 69, 0.12);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .header-name { font-size: 20px; font-weight: 600; color: var(--text-0); }
+    .header-version {
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--text-2);
+      background: var(--bg-3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-top: 3px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 40px 0;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-brand { font-size: 14px; font-weight: 500; color: var(--accent); }
+    .footer-tagline { font-size: 12px; color: var(--text-2); margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="header">
+      <div class="header-icon">
+        <svg width="28" height="28" viewBox="0 0 100 100" fill="none">
+          <path d="M50 4 L94 22 V52 C94 76 74 90 50 98 C26 90 6 76 6 52 V22 Z"
+            fill="#1a7a45" fill-opacity="0.15" stroke="#1a7a45" stroke-width="5" stroke-linejoin="round"/>
+          <g transform="translate(30,26)">
+            <ellipse cx="16" cy="40" rx="10" ry="7" transform="rotate(-15,16,40)" fill="#1a7a45"/>
+            <rect x="24" y="6" width="4" height="35" rx="2" fill="#1a7a45"/>
+            <path d="M28 6 C40 8 42 18 36 26" stroke="#1a7a45" stroke-width="4.5" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+      <div>
+        <div class="header-name" id="header-name">Sakina</div>
+        <div class="header-version" id="header-version">v1.0.0</div>
+      </div>
+    </div>
+
+    <!-- Aya -->
+    <div class="aya-block">
+      <div class="aya-arabic" id="aya-arabic"></div>
+      <div class="aya-transliteration" id="aya-transliteration"></div>
+      <div class="aya-translation" id="aya-translation"></div>
+      <div class="aya-reference" id="aya-reference"></div>
+    </div>
+
+    <!-- What -->
+    <div class="section">
+      <div class="section-title" id="what-title"></div>
+      <div class="section-body" id="what-body"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Why -->
+    <div class="section">
+      <div class="section-title" id="why-title"></div>
+      <div class="section-body" id="why-body"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Dua -->
+    <div class="dua-block">
+      <div class="section-title" id="dua-title"></div>
+      <div class="section-body" id="dua-body"></div>
+      <div class="dua-arabic-center" id="dua-arabic"></div>
+      <div class="dua-meaning" id="dua-meaning"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-brand" id="footer-brand">Sakina</div>
+      <div class="footer-tagline" id="footer-tagline"></div>
+    </div>
+
+  </div>
+  <script src="about.js"></script>
+</body>
+</html>

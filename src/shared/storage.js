@@ -1,5 +1,5 @@
 /**
- * MusicShield — Storage Module
+ * Sakina — Storage Module
  *
  * Typed wrapper around chrome.storage.sync with local fallback.
  * All persistence goes through here — never call chrome.storage directly.
@@ -24,7 +24,7 @@ export async function getSettings(keys = null) {
     const request = keys ? (Array.isArray(keys) ? keys : [keys]) : null;
     chrome.storage.sync.get(request, (result) => {
       if (chrome.runtime.lastError) {
-        console.warn('[MusicShield:storage] sync read failed, using defaults:', chrome.runtime.lastError);
+        console.warn('[Sakina:storage] sync read failed, using defaults:', chrome.runtime.lastError);
         resolve(request ? Object.fromEntries(request.map(k => [k, DEFAULT_SETTINGS[k]])) : { ...DEFAULT_SETTINGS });
         return;
       }
@@ -58,7 +58,7 @@ export async function saveSettings(updates) {
   return new Promise((resolve, reject) => {
     chrome.storage.sync.set(updates, () => {
       if (chrome.runtime.lastError) {
-        console.error('[MusicShield:storage] sync write failed:', chrome.runtime.lastError);
+        console.error('[Sakina:storage] sync write failed:', chrome.runtime.lastError);
         reject(chrome.runtime.lastError);
         return;
       }
@@ -134,7 +134,140 @@ export async function resetStats() {
       [STORAGE_KEYS.STATS_MUTE_COUNT]: 0,
       [STORAGE_KEYS.STATS_MUTED_SECONDS]: 0,
       [STORAGE_KEYS.STATS_VIDEOS_PROCESSED]: 0,
+      [STORAGE_KEYS.STATS_BY_PLATFORM]: { youtube: 0, instagram: 0, facebook: 0, tiktok: 0 },
+      [STORAGE_KEYS.ACTIVITY_LOG]: [],
     }, resolve);
+  });
+}
+
+// ─── Activity Log ─────────────────────────────────────────────────────────────
+
+const MAX_ACTIVITY_ENTRIES = 50;
+const ACTIVITY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+/**
+ * Get activity log entries (last 24h only).
+ * @returns {Promise<Array<{platform: string, timestamp: number, durationSeconds: number}>>}
+ */
+export async function getActivityLog() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([STORAGE_KEYS.ACTIVITY_LOG], (result) => {
+      const log = result[STORAGE_KEYS.ACTIVITY_LOG] || [];
+      const cutoff = Date.now() - ACTIVITY_TTL_MS;
+      resolve(log.filter(entry => entry.timestamp > cutoff));
+    });
+  });
+}
+
+/**
+ * Add an activity entry.
+ * @param {string} platform - youtube, instagram, facebook, tiktok
+ * @param {number} durationSeconds - how long was muted
+ */
+export async function addActivityEntry(platform, durationSeconds) {
+  const log = await getActivityLog();
+  log.unshift({
+    platform,
+    timestamp: Date.now(),
+    durationSeconds: Math.round(durationSeconds),
+  });
+  // Keep only last MAX_ACTIVITY_ENTRIES
+  const trimmed = log.slice(0, MAX_ACTIVITY_ENTRIES);
+  return new Promise((resolve) => {
+    chrome.storage.local.set({ [STORAGE_KEYS.ACTIVITY_LOG]: trimmed }, resolve);
+  });
+}
+
+/**
+ * Clear activity log.
+ */
+export async function clearActivityLog() {
+  return new Promise((resolve) => {
+    chrome.storage.local.set({ [STORAGE_KEYS.ACTIVITY_LOG]: [] }, resolve);
+  });
+}
+
+// ─── Allowlist ────────────────────────────────────────────────────────────────
+
+/**
+ * Get list of URLs/patterns to never mute.
+ * @returns {Promise<string[]>}
+ */
+export async function getAllowlist() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get([STORAGE_KEYS.ALLOWLIST], (result) => {
+      resolve(result[STORAGE_KEYS.ALLOWLIST] || []);
+    });
+  });
+}
+
+/**
+ * Save allowlist.
+ * @param {string[]} list
+ */
+export async function saveAllowlist(list) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.set({ [STORAGE_KEYS.ALLOWLIST]: list }, () => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+/**
+ * Add a URL pattern to allowlist.
+ * @param {string} pattern
+ */
+export async function addToAllowlist(pattern) {
+  const list = await getAllowlist();
+  if (!list.includes(pattern)) {
+    list.push(pattern);
+    await saveAllowlist(list);
+  }
+}
+
+/**
+ * Remove a URL pattern from allowlist.
+ * @param {string} pattern
+ */
+export async function removeFromAllowlist(pattern) {
+  const list = await getAllowlist();
+  const filtered = list.filter(p => p !== pattern);
+  await saveAllowlist(filtered);
+}
+
+// ─── Stats by Platform ────────────────────────────────────────────────────────
+
+/**
+ * Get stats broken down by platform.
+ * @returns {Promise<{youtube: number, instagram: number, facebook: number, tiktok: number}>}
+ */
+export async function getStatsByPlatform() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([STORAGE_KEYS.STATS_BY_PLATFORM], (result) => {
+      resolve(result[STORAGE_KEYS.STATS_BY_PLATFORM] || {
+        youtube: 0, instagram: 0, facebook: 0, tiktok: 0
+      });
+    });
+  });
+}
+
+/**
+ * Add muted seconds to a specific platform.
+ * @param {string} platform
+ * @param {number} seconds
+ */
+export async function addPlatformMutedSeconds(platform, seconds) {
+  const stats = await getStatsByPlatform();
+  const key = platform.toLowerCase();
+  if (key in stats) {
+    stats[key] += seconds;
+  }
+  return new Promise((resolve) => {
+    chrome.storage.local.set({ [STORAGE_KEYS.STATS_BY_PLATFORM]: stats }, resolve);
   });
 }
 

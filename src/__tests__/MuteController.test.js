@@ -1,5 +1,5 @@
 /**
- * MusicShield — Tests: MuteController
+ * Sakina — Tests: MuteController
  *
  * Tests the sliding window debounce algorithm:
  *   - Mute after N consecutive music frames

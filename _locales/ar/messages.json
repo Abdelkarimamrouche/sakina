@@ -1,0 +1,139 @@
+{
+  "ext_name":                { "message": "Sakina — كتم الموسيقى تلقائياً" },
+  "ext_short_name":          { "message": "Sakina" },
+  "ext_description":         { "message": "يكشف الموسيقى ويكتمها تلقائياً في يوتيوب وإنستغرام وفيسبوك وتيك توك باستخدام الذكاء الاصطناعي. الكلام والأصوات الطبيعية تعمل بشكل طبيعي." },
+
+  "toggle_enable":           { "message": "تفعيل Sakina" },
+  "toggle_disable":          { "message": "إيقاف Sakina" },
+
+  "status_loading_title":    { "message": "جارٍ تحميل نموذج الذكاء الاصطناعي" },
+  "status_loading_sub":      { "message": "التحميل الأول يستغرق ~٥-١٠ ثوانٍ، ثم يُحفظ" },
+  "status_muted_title":      { "message": "تم اكتشاف موسيقى — مكتوم" },
+  "status_muted_sub":        { "message": "سيعود الصوت عند انتهاء الموسيقى" },
+  "status_error_title":      { "message": "خطأ في المُصنِّف" },
+  "status_error_sub":        { "message": "أعد تحميل الصفحة للمحاولة مجدداً" },
+  "status_listening_title":  { "message": "يستمع — لا توجد موسيقى" },
+  "status_listening_sub":    { "message": "الصوت يعمل بشكل طبيعي" },
+
+  "idle_title":              { "message": "لم يتم اكتشاف فيديو" },
+  "idle_sub":                { "message": "يعمل Sakina تلقائياً على يوتيوب وإنستغرام وفيسبوك وتيك توك." },
+
+  "stat_music_muted":        { "message": "الموسيقى مكتومة" },
+  "stat_segments":           { "message": "مقاطع محجوبة" },
+
+  "section_detection":       { "message": "إعدادات الكشف" },
+  "setting_sensitivity_label": { "message": "حساسية الموسيقى" },
+  "setting_sensitivity_desc":  { "message": "مستوى ثقة الذكاء الاصطناعي اللازم للكتم" },
+  "sensitivity_more":        { "message": "أكثر حساسية" },
+  "sensitivity_accurate":    { "message": "أكثر دقة" },
+
+  "setting_singing_label":   { "message": "كتم الغناء والأصوات" },
+  "setting_singing_desc":    { "message": "يشمل الغناء بدون موسيقى والأصوات الخلفية" },
+  "setting_badge_label":     { "message": "إظهار شارة الحالة" },
+  "setting_badge_desc":      { "message": "مؤشر الكتم على أيقونة الإضافة" },
+
+  "btn_reset_stats":         { "message": "إعادة تعيين الإحصائيات" },
+  "btn_about":               { "message": "حول" },
+  "btn_advanced":            { "message": "الإعدادات المتقدمة ↗" },
+  "confirm_reset":           { "message": "هل تريد إعادة تعيين جميع إحصائيات الكتم؟" },
+  "saved_indicator":         { "message": "تم الحفظ ✓" },
+
+  "options_title":           { "message": "إعدادات Sakina" },
+  "options_reset_stats":     { "message": "إعادة تعيين الإحصائيات" },
+  "confirm_reset_lifetime":  { "message": "هل تريد إعادة تعيين جميع الإحصائيات؟" },
+
+  "section_platforms":       { "message": "المنصات" },
+  "section_allowlist":       { "message": "لا تكتم في" },
+  "section_activity":        { "message": "النشاط الأخير" },
+  "section_stats":           { "message": "الإحصائيات" },
+
+  "platform_youtube":        { "message": "يوتيوب" },
+  "platform_instagram":      { "message": "إنستغرام" },
+  "platform_facebook":       { "message": "فيسبوك" },
+  "platform_tiktok":         { "message": "تيك توك" },
+
+  "allowlist_placeholder":   { "message": "أدخل رابط أو مسار القناة..." },
+  "allowlist_add":           { "message": "إضافة" },
+  "allowlist_empty":         { "message": "لا توجد عناصر بعد" },
+
+  "activity_empty":          { "message": "لا يوجد نشاط حديث" },
+  "activity_last_24h":       { "message": "آخر ٢٤ ساعة" },
+  "btn_clear_activity":      { "message": "مسح السجل" },
+
+  "stat_muted_time":         { "message": "وقت الكتم" },
+  "stat_mute_count":         { "message": "مقاطع مكتومة" },
+  "stat_videos":             { "message": "فيديوهات معالجة" },
+  "stat_accuracy":           { "message": "الدقة" },
+  "stat_breakdown":          { "message": "حسب المنصة" },
+
+  "btn_export_csv":          { "message": "تصدير CSV" },
+  "confirm_reset_all":       { "message": "إعادة تعيين جميع الإحصائيات؟" },
+  "confirm_clear_activity":  { "message": "مسح سجل النشاط؟" },
+
+  "time_just_now":           { "message": "الآن" },
+  "time_ago":                { "message": "مضى" },
+  "time_over_24h":           { "message": "+٢٤ ساعة" },
+
+  "opt_section_platforms":        { "message": "المنصات" },
+  "opt_section_allowlist":        { "message": "لا تكتم أبداً في" },
+  "opt_section_activity":         { "message": "النشاط الأخير" },
+  "opt_section_stats":            { "message": "الإحصائيات" },
+  "opt_section_detection":        { "message": "الكشف" },
+  "opt_section_general":          { "message": "عام" },
+
+  "opt_platform_youtube":         { "message": "يوتيوب" },
+  "opt_platform_instagram":       { "message": "إنستغرام" },
+  "opt_platform_facebook":        { "message": "فيسبوك" },
+  "opt_platform_tiktok":          { "message": "تيك توك" },
+
+  "opt_allowlist_empty":          { "message": "لا توجد عناصر بعد" },
+  "opt_allowlist_placeholder":    { "message": "youtube.com/@اسم_القناة" },
+  "opt_allowlist_btn_add":        { "message": "إضافة" },
+  "opt_allowlist_desc":           { "message": "أضف روابط القنوات أو المسارات التي لا يجب كتم الموسيقى فيها أبداً." },
+
+  "opt_activity_empty":           { "message": "لا يوجد نشاط حديث" },
+  "opt_activity_clear":           { "message": "مسح السجل" },
+
+  "opt_stat_muted":               { "message": "مكتوم" },
+  "opt_stat_segments":            { "message": "مقاطع محجوبة" },
+  "opt_stat_videos":              { "message": "مقاطع معالجة" },
+  "opt_stat_accuracy":            { "message": "الدقة" },
+  "opt_btn_export_csv":           { "message": "تصدير CSV" },
+  "opt_btn_reset_stats":          { "message": "إعادة تعيين الإحصائيات" },
+  "opt_confirm_reset_stats":      { "message": "إعادة تعيين جميع الإحصائيات؟ لا يمكن التراجع عن هذا." },
+
+  "opt_sensitivity_label":        { "message": "حساسية الموسيقى" },
+  "opt_sensitivity_desc":         { "message": "الحد الأدنى لثقة الذكاء الاصطناعي لتفعيل الكتم" },
+  "opt_sensitivity_left":         { "message": "← حساس (قد يكتم أكثر)" },
+  "opt_sensitivity_right":        { "message": "(أقل إيجابيات كاذبة) صارم →" },
+
+  "opt_singing_label":            { "message": "كتم الغناء والأصوات" },
+  "opt_singing_desc":             { "message": "يشمل الغناء بدون موسيقى والأصوات الخلفية" },
+  "opt_enable_label":             { "message": "تفعيل Sakina" },
+  "opt_enable_desc":              { "message": "مفتاح التشغيل الرئيسي" },
+  "opt_badge_label":              { "message": "إظهار شارة الحالة" },
+  "opt_badge_desc":               { "message": "يعرض 🔇 على أيقونة الإضافة عند الكتم" },
+
+  "opt_welcome_title":            { "message": "مرحباً بك في Sakina 👋" },
+  "opt_welcome_body":             { "message": "يتم حفظ تفضيلاتك تلقائياً. افتح أي فيديو — سيحمّل Sakina نموذج الذكاء الاصطناعي في المرة الأولى (~٥ ثوانٍ) ثم يعمل دون اتصال بالإنترنت." },
+
+  "opt_footer_bug":               { "message": "الإبلاغ عن خطأ" },
+  "opt_footer_about":             { "message": "عن التطبيق" },
+  "opt_footer_made":              { "message": "صُنع باهتمام" },
+
+  "about_quran_arabic":           { "message": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا" },
+  "about_quran_transliteration":  { "message": "" },
+  "about_quran_translation":      { "message": "" },
+  "about_quran_reference":        { "message": "سورة الطلاق، ٦٥:٢" },
+  "about_title":                  { "message": "عن Sakina" },
+  "about_what_title":             { "message": "ما هو Sakina؟" },
+  "about_what_body":              { "message": "Sakina إضافة مجانية لمتصفح Chrome تكتشف الموسيقى وتكتمها تلقائياً في يوتيوب وإنستغرام وفيسبوك وتيك توك باستخدام الذكاء الاصطناعي على جهازك. تلاوة القرآن والكلام والأصوات الطبيعية تعمل بشكل طبيعي دائماً — يُكتم الموسيقى فقط." },
+  "about_why_title":              { "message": "لماذا تم إنشاؤها؟" },
+  "about_why_body":               { "message": "صُنعت هذه الإضافة هدية للمجتمع الإسلامي. كثير منا يريد الاستفادة من مقاطع الفيديو المفيدة دون أن تدخل الموسيقى إلى قلبه. القلب لا يجمع بين القرآن والموسيقى — فبُنيت هذه الأداة لحمايته.\n\nبدون اشتراك. بدون حساب. بدون جمع بيانات. مجانية لكل مسلم في العالم، ابتغاءً لوجه الله." },
+  "about_dua_title":              { "message": "طلب" },
+  "about_dua_body":               { "message": "لا أطلب شيئاً في المقابل إلا دعاءكم. إن أفادتكم هذه الإضافة، فادعوا لي ولأهلي ولجميع المسلمين. اسألوا الله أن يتقبل هذا العمل الصغير وأن يثبت قلوبنا.\n\nأسأل الله أن يجعلها مصدر خير في اليوم الذي تهم فيه الأعمال." },
+  "about_dua_arabic":             { "message": "اللَّهُمَّ تَقَبَّل مِنَّا" },
+  "about_dua_arabic_meaning":     { "message": "اللهم تقبل منا" },
+  "about_footer_version":         { "message": "Sakina" },
+  "about_footer_free":            { "message": "مجانية للأبد · للأمة الإسلامية · لوجه الله" }
+}

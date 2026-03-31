@@ -1,0 +1,107 @@
+{
+  "ext_name":                { "message": "Sakina — Bisukan Musik Otomatis" },
+  "ext_short_name":          { "message": "Sakina" },
+  "ext_description":         { "message": "Otomatis mendeteksi dan membisukan musik di YouTube, Instagram, Facebook, dan TikTok menggunakan AI. Suara percakapan dan suara ambient tetap terdengar normal." },
+
+  "toggle_enable":           { "message": "Aktifkan Sakina" },
+  "toggle_disable":          { "message": "Nonaktifkan Sakina" },
+
+  "status_loading_title":    { "message": "Memuat Model AI" },
+  "status_loading_sub":      { "message": "Pemuatan pertama ~5–10 detik, lalu disimpan" },
+  "status_muted_title":      { "message": "Musik Terdeteksi — Dibisukan" },
+  "status_muted_sub":        { "message": "Audio akan pulih saat musik berhenti" },
+  "status_error_title":      { "message": "Kesalahan Pengklasifikasi" },
+  "status_error_sub":        { "message": "Muat ulang halaman untuk mencoba lagi" },
+  "status_listening_title":  { "message": "Mendengarkan — Tidak Ada Musik" },
+  "status_listening_sub":    { "message": "Audio berjalan normal" },
+
+  "idle_title":              { "message": "Tidak ada video terdeteksi" },
+  "idle_sub":                { "message": "Sakina aktif otomatis di YouTube, Instagram, Facebook, dan TikTok." },
+
+  "stat_music_muted":        { "message": "Musik dibisukan" },
+  "stat_segments":           { "message": "Segmen diblokir" },
+
+  "section_detection":       { "message": "Pengaturan Deteksi" },
+  "setting_sensitivity_label": { "message": "Sensitivitas Musik" },
+  "setting_sensitivity_desc":  { "message": "Seberapa yakin AI harus untuk membisukan" },
+  "sensitivity_more":        { "message": "Lebih sensitif" },
+  "sensitivity_accurate":    { "message": "Lebih akurat" },
+
+  "setting_singing_label":   { "message": "Bisukan Nyanyian & Vokal" },
+  "setting_singing_desc":    { "message": "Termasuk a cappella, vokal latar" },
+  "setting_badge_label":     { "message": "Tampilkan Lencana Status" },
+  "setting_badge_desc":      { "message": "Indikator bisukan pada ikon ekstensi" },
+
+  "btn_reset_stats":         { "message": "Reset statistik" },
+  "btn_about":               { "message": "Tentang" },
+  "btn_advanced":            { "message": "Pengaturan lanjutan ↗" },
+  "confirm_reset":           { "message": "Reset semua statistik bisukan?" },
+  "saved_indicator":         { "message": "Tersimpan ✓" },
+
+  "options_title":           { "message": "Pengaturan Sakina" },
+  "options_reset_stats":     { "message": "Reset Statistik" },
+  "confirm_reset_lifetime":  { "message": "Reset semua statistik seumur hidup?" },
+
+  "opt_section_platforms":        { "message": "Platform" },
+  "opt_section_allowlist":        { "message": "Jangan Bisukan Di" },
+  "opt_section_activity":         { "message": "Aktivitas Terbaru" },
+  "opt_section_stats":            { "message": "Statistik" },
+  "opt_section_detection":        { "message": "Deteksi" },
+  "opt_section_general":          { "message": "Umum" },
+
+  "opt_platform_youtube":         { "message": "YouTube" },
+  "opt_platform_instagram":       { "message": "Instagram" },
+  "opt_platform_facebook":        { "message": "Facebook" },
+  "opt_platform_tiktok":          { "message": "TikTok" },
+
+  "opt_allowlist_empty":          { "message": "Belum ada item" },
+  "opt_allowlist_placeholder":    { "message": "youtube.com/@NamaChannel" },
+  "opt_allowlist_btn_add":        { "message": "Tambah" },
+  "opt_allowlist_desc":           { "message": "Tambahkan URL saluran di mana musik tidak boleh pernah dibisukan." },
+
+  "opt_activity_empty":           { "message": "Tidak ada aktivitas terbaru" },
+  "opt_activity_clear":           { "message": "Hapus riwayat" },
+
+  "opt_stat_muted":               { "message": "Dibisukan" },
+  "opt_stat_segments":            { "message": "Segmen Diblokir" },
+  "opt_stat_videos":              { "message": "Video Diproses" },
+  "opt_stat_accuracy":            { "message": "Akurasi" },
+  "opt_btn_export_csv":           { "message": "Ekspor CSV" },
+  "opt_btn_reset_stats":          { "message": "Reset statistik" },
+  "opt_confirm_reset_stats":      { "message": "Reset semua statistik? Ini tidak dapat dibatalkan." },
+
+  "opt_sensitivity_label":        { "message": "Sensitivitas Musik" },
+  "opt_sensitivity_desc":         { "message": "Keyakinan AI minimum untuk memicu pembisuan" },
+  "opt_sensitivity_left":         { "message": "← Sensitif (mungkin membisukan lebih banyak)" },
+  "opt_sensitivity_right":        { "message": "(lebih sedikit positif palsu) Ketat →" },
+
+  "opt_singing_label":            { "message": "Bisukan Nyanyian & Vokal" },
+  "opt_singing_desc":             { "message": "Termasuk a cappella, paduan suara, vokal latar" },
+  "opt_enable_label":             { "message": "Aktifkan Sakina" },
+  "opt_enable_desc":              { "message": "Saklar utama aktif/nonaktif" },
+  "opt_badge_label":              { "message": "Tampilkan Lencana Status" },
+  "opt_badge_desc":               { "message": "Menampilkan 🔇 pada ikon ekstensi saat dibisukan" },
+
+  "opt_welcome_title":            { "message": "Selamat datang di Sakina 👋" },
+  "opt_welcome_body":             { "message": "Preferensi Anda disimpan secara otomatis. Buka video apa pun — Sakina akan memuat model AI pertama kali (~5 detik), lalu berjalan sepenuhnya offline." },
+
+  "opt_footer_bug":               { "message": "Laporkan bug" },
+  "opt_footer_about":             { "message": "Tentang" },
+  "opt_footer_made":              { "message": "Dibuat dengan penuh perhatian" },
+
+  "about_quran_arabic":           { "message": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا" },
+  "about_quran_transliteration":  { "message": "Wa man yattaqillāha yaj'al lahu makhrajan" },
+  "about_quran_translation":      { "message": "Dan barangsiapa bertakwa kepada Allah — Dia akan membukakan jalan keluar baginya." },
+  "about_quran_reference":        { "message": "Surah At-Thalaq, 65:2" },
+  "about_title":                  { "message": "Tentang Sakina" },
+  "about_what_title":             { "message": "Apa itu Sakina?" },
+  "about_what_body":              { "message": "Sakina adalah ekstensi Chrome gratis yang secara otomatis mendeteksi dan membisukan musik di YouTube, Instagram, Facebook, dan TikTok menggunakan AI di perangkat Anda. Suara, bacaan Al-Quran, dan suara lingkungan selalu diputar normal — hanya musik yang dibisukan." },
+  "about_why_title":              { "message": "Mengapa dibuat?" },
+  "about_why_body":               { "message": "Ekstensi ini dibuat sebagai hadiah untuk komunitas Muslim. Banyak dari kita ingin mendapat manfaat dari video yang berguna tanpa musik masuk ke dalam hati. Hati tidak bisa menampung Al-Quran dan musik sekaligus — maka alat ini dibuat untuk melindunginya.\n\nTanpa langganan. Tanpa akun. Tanpa pengumpulan data. Gratis untuk setiap Muslim di dunia, karena Allah." },
+  "about_dua_title":              { "message": "Sebuah Permohonan" },
+  "about_dua_body":               { "message": "Saya tidak meminta apa pun sebagai balasan kecuali doa Anda. Jika ekstensi ini bermanfaat bagi Anda, mohon doakan saya, keluarga saya, dan seluruh umat Muslim. Minta kepada Allah agar menerima amal kecil ini dan menjaga hati kita tetap teguh.\n\nSemoga Allah menjadikannya sumber kebaikan di Hari ketika amal paling berarti." },
+  "about_dua_arabic":             { "message": "اللَّهُمَّ تَقَبَّل مِنَّا" },
+  "about_dua_arabic_meaning":     { "message": "Ya Allah, terimalah dari kami." },
+  "about_footer_version":         { "message": "Sakina" },
+  "about_footer_free":            { "message": "Gratis selamanya · Untuk Umat · li-wajhillah" }
+}

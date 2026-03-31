@@ -1,5 +1,5 @@
 /**
- * MusicShield — AudioPipeline
+ * Sakina — AudioPipeline
  *
  * Intercepts a <video> element's audio stream via Web Audio API.
  * Provides:
@@ -72,18 +72,34 @@ export class AudioPipeline {
         const cached = sourceNodeCache.get(this._video);
         this._source = cached.source;
         this._ctx = cached.ctx;
-        if (this._ctx.state === 'suspended') {
-          await this._ctx.resume();
-        }
       } else {
         this._ctx = new AudioContext({
           latencyHint: 'playback',
         });
-        if (this._ctx.state === 'suspended') {
-          await this._ctx.resume();
-        }
         this._source = this._ctx.createMediaElementSource(this._video);
         sourceNodeCache.set(this._video, { source: this._source, ctx: this._ctx });
+      }
+
+      // Resume AudioContext without blocking — on some platforms (TikTok)
+      // there's no user gesture yet, so resume() would hang forever.
+      // We set up everything first, then resume. If still suspended,
+      // a user interaction will resume it automatically.
+      if (this._ctx.state === 'suspended') {
+        this._ctx.resume().catch(() => {});
+        // Auto-resume on first user interaction with the page
+        const resumeOnGesture = () => {
+          if (this._ctx && this._ctx.state === 'suspended') {
+            this._ctx.resume().catch(() => {});
+          }
+          document.removeEventListener('click', resumeOnGesture);
+          document.removeEventListener('keydown', resumeOnGesture);
+          document.removeEventListener('touchstart', resumeOnGesture);
+          document.removeEventListener('scroll', resumeOnGesture);
+        };
+        document.addEventListener('click', resumeOnGesture, { once: true });
+        document.addEventListener('keydown', resumeOnGesture, { once: true });
+        document.addEventListener('touchstart', resumeOnGesture, { once: true });
+        document.addEventListener('scroll', resumeOnGesture, { once: true });
       }
 
       // ── Analyser: gives us frequency data for potential future FFT features ──
@@ -127,10 +143,10 @@ export class AudioPipeline {
       this._silentGain.connect(this._ctx.destination);
 
       this._initialized = true;
-      console.info('[MusicShield:pipeline] Initialized. Sample rate:', this._ctx.sampleRate);
+      console.info('[Sakina:pipeline] Initialized. Sample rate:', this._ctx.sampleRate);
 
     } catch (err) {
-      console.error('[MusicShield:pipeline] Failed to initialize:', err);
+      console.error('[Sakina:pipeline] Failed to initialize:', err);
       this.destroy();
       throw err;
     }
@@ -263,6 +279,6 @@ export class AudioPipeline {
     this._totalBuffered = 0;
     this._initialized = false;
     this.onAudioChunk = null;
-    console.info('[MusicShield:pipeline] Destroyed.');
+    console.info('[Sakina:pipeline] Destroyed.');
   }
 }

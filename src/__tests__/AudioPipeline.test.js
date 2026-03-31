@@ -1,5 +1,5 @@
 /**
- * MusicShield — Tests: AudioPipeline (resampler unit tests)
+ * Sakina — Tests: AudioPipeline (resampler unit tests)
  *
  * We test the pure _resampleLinear function in isolation.
  * The full AudioPipeline class requires AudioContext (browser only),

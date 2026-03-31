@@ -1,0 +1,107 @@
+{
+  "ext_name":                { "message": "Sakina — Redam Muzik Secara Automatik" },
+  "ext_short_name":          { "message": "Sakina" },
+  "ext_description":         { "message": "Mengesan dan meredam muzik secara automatik di YouTube, Instagram, Facebook dan TikTok menggunakan AI. Pertuturan dan bunyi persekitaran dimainkan seperti biasa." },
+
+  "toggle_enable":           { "message": "Aktifkan Sakina" },
+  "toggle_disable":          { "message": "Nyahaktifkan Sakina" },
+
+  "status_loading_title":    { "message": "Memuatkan Model AI" },
+  "status_loading_sub":      { "message": "Muat pertama ~5–10s, kemudian disimpan" },
+  "status_muted_title":      { "message": "Muzik Dikesan — Diredam" },
+  "status_muted_sub":        { "message": "Audio akan pulih apabila muzik tamat" },
+  "status_error_title":      { "message": "Ralat Pengelas" },
+  "status_error_sub":        { "message": "Muat semula halaman untuk cuba lagi" },
+  "status_listening_title":  { "message": "Mendengar — Tiada Muzik" },
+  "status_listening_sub":    { "message": "Audio dimainkan seperti biasa" },
+
+  "idle_title":              { "message": "Tiada video dikesan" },
+  "idle_sub":                { "message": "Sakina diaktifkan secara automatik di YouTube, Instagram, Facebook dan TikTok." },
+
+  "stat_music_muted":        { "message": "Muzik diredam" },
+  "stat_segments":           { "message": "Segmen disekat" },
+
+  "section_detection":       { "message": "Tetapan Pengesanan" },
+  "setting_sensitivity_label": { "message": "Sensitiviti Muzik" },
+  "setting_sensitivity_desc":  { "message": "Tahap keyakinan AI untuk meredam" },
+  "sensitivity_more":        { "message": "Lebih sensitif" },
+  "sensitivity_accurate":    { "message": "Lebih tepat" },
+
+  "setting_singing_label":   { "message": "Redam Nyanyian & Vokal" },
+  "setting_singing_desc":    { "message": "Termasuk a cappella dan vokal latar" },
+  "setting_badge_label":     { "message": "Tunjukkan Lencana Status" },
+  "setting_badge_desc":      { "message": "Penunjuk redam pada ikon sambungan" },
+
+  "btn_reset_stats":         { "message": "Tetapkan semula statistik" },
+  "btn_about":               { "message": "Perihal" },
+  "btn_advanced":            { "message": "Tetapan lanjutan ↗" },
+  "confirm_reset":           { "message": "Tetapkan semula semua statistik redam?" },
+  "saved_indicator":         { "message": "Disimpan ✓" },
+
+  "options_title":           { "message": "Tetapan Sakina" },
+  "options_reset_stats":     { "message": "Tetapkan Semula Statistik" },
+  "confirm_reset_lifetime":  { "message": "Tetapkan semula semua statistik?" },
+
+  "opt_section_platforms":        { "message": "Platform" },
+  "opt_section_allowlist":        { "message": "Jangan Redam Di" },
+  "opt_section_activity":         { "message": "Aktiviti Terkini" },
+  "opt_section_stats":            { "message": "Statistik" },
+  "opt_section_detection":        { "message": "Pengesanan" },
+  "opt_section_general":          { "message": "Umum" },
+
+  "opt_platform_youtube":         { "message": "YouTube" },
+  "opt_platform_instagram":       { "message": "Instagram" },
+  "opt_platform_facebook":        { "message": "Facebook" },
+  "opt_platform_tiktok":          { "message": "TikTok" },
+
+  "opt_allowlist_empty":          { "message": "Tiada item lagi" },
+  "opt_allowlist_placeholder":    { "message": "youtube.com/@NamaSaluran" },
+  "opt_allowlist_btn_add":        { "message": "Tambah" },
+  "opt_allowlist_desc":           { "message": "Tambah URL saluran yang tidak perlu diredam." },
+
+  "opt_activity_empty":           { "message": "Tiada aktiviti terkini" },
+  "opt_activity_clear":           { "message": "Kosongkan sejarah" },
+
+  "opt_stat_muted":               { "message": "Diredam" },
+  "opt_stat_segments":            { "message": "Segmen Disekat" },
+  "opt_stat_videos":              { "message": "Video Diproses" },
+  "opt_stat_accuracy":            { "message": "Ketepatan" },
+  "opt_btn_export_csv":           { "message": "Eksport CSV" },
+  "opt_btn_reset_stats":          { "message": "Set semula statistik" },
+  "opt_confirm_reset_stats":      { "message": "Set semula semua statistik? Ini tidak boleh dibatalkan." },
+
+  "opt_sensitivity_label":        { "message": "Sensitiviti Muzik" },
+  "opt_sensitivity_desc":         { "message": "Keyakinan AI minimum untuk mencetuskan redam" },
+  "opt_sensitivity_left":         { "message": "← Sensitif (mungkin meredam lebih)" },
+  "opt_sensitivity_right":        { "message": "(kurang positif palsu) Ketat →" },
+
+  "opt_singing_label":            { "message": "Redam Nyanyian & Vokal" },
+  "opt_singing_desc":             { "message": "Termasuk a cappella, koir, vokal latar" },
+  "opt_enable_label":             { "message": "Aktifkan Sakina" },
+  "opt_enable_desc":              { "message": "Suis utama hidup/mati" },
+  "opt_badge_label":              { "message": "Tunjukkan Lencana Status" },
+  "opt_badge_desc":               { "message": "Paparkan 🔇 pada ikon apabila diredam" },
+
+  "opt_welcome_title":            { "message": "Selamat datang ke Sakina 👋" },
+  "opt_welcome_body":             { "message": "Keutamaan anda disimpan secara automatik. Buka mana-mana video — Sakina akan memuatkan model AI kali pertama (~5 saat), kemudian berjalan sepenuhnya luar talian." },
+
+  "opt_footer_bug":               { "message": "Laporkan pepijat" },
+  "opt_footer_about":             { "message": "Perihal" },
+  "opt_footer_made":              { "message": "Dibuat dengan penuh perhatian" },
+
+  "about_quran_arabic":           { "message": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا" },
+  "about_quran_transliteration":  { "message": "Wa man yattaqillāha yaj'al lahu makhrajan" },
+  "about_quran_translation":      { "message": "Dan sesiapa yang bertakwa kepada Allah — Dia akan membukakan jalan keluar baginya." },
+  "about_quran_reference":        { "message": "Surah At-Talaq, 65:2" },
+  "about_title":                  { "message": "Perihal Sakina" },
+  "about_what_title":             { "message": "Apakah Sakina?" },
+  "about_what_body":              { "message": "Sakina adalah sambungan Chrome percuma yang mengesan dan meredam muzik secara automatik di YouTube, Instagram, Facebook dan TikTok menggunakan AI pada peranti. Pertuturan, bacaan Al-Quran dan bunyi persekitaran sentiasa dimainkan seperti biasa — hanya muzik yang diredam." },
+  "about_why_title":              { "message": "Mengapa ia dicipta?" },
+  "about_why_body":               { "message": "Sambungan ini dicipta sebagai hadiah untuk komuniti Muslim. Ramai di antara kita ingin mendapat manfaat daripada video yang berguna tanpa muzik memasuki hati kita. Hati tidak boleh memuatkan Al-Quran dan muzik sekaligus — maka alat ini dibina untuk melindunginya.\n\nTiada langganan. Tiada akaun. Tiada pengumpulan data. Percuma untuk setiap Muslim di dunia, kerana Allah." },
+  "about_dua_title":              { "message": "Satu Permintaan" },
+  "about_dua_body":               { "message": "Saya tidak meminta apa-apa sebagai balasan kecuali Dua anda. Jika sambungan ini telah memberi manfaat kepada anda, sila doakan untuk saya, keluarga saya dan semua umat Islam. Mohon kepada Allah agar menerima amalan kecil ini dan menetapkan hati kita.\n\nSemoga Allah menjadikannya sumber kebaikan pada Hari di mana amalan paling penting." },
+  "about_dua_arabic":             { "message": "اللَّهُمَّ تَقَبَّل مِنَّا" },
+  "about_dua_arabic_meaning":     { "message": "Ya Allah, terimalah daripada kami." },
+  "about_footer_version":         { "message": "Sakina" },
+  "about_footer_free":            { "message": "Percuma selama-lamanya · Untuk Ummah · li-wajhillah" }
+}

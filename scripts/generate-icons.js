@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 /**
- * MusicShield — Icon Generator
+ * Sakina — Icon Generator
  *
- * Generates all required Chrome extension icon sizes from a single SVG definition.
- * Outputs: icon16.png, icon32.png, icon48.png, icon128.png
+ * Two variants:
+ *   - Default: shield with musical note inside
+ *   - Muted:  same + red diagonal bar
  *
- * Usage:
- *   node scripts/generate-icons.js
- *
- * Requires: npm install canvas (or uses sharp if available)
+ * No background — the shield itself IS the icon, filling the full canvas.
  */
 
 const fs = require('fs');
@@ -17,172 +15,72 @@ const path = require('path');
 const ICONS_DIR = path.join(__dirname, '../assets/icons');
 const SIZES = [16, 32, 48, 128];
 
-// ─── SVG Definition ───────────────────────────────────────────────────────────
-// The icon is a shield with a musical note crossed out — clean, readable at 16px.
-// Designed on a 100×100 viewBox so it scales perfectly to all sizes.
+function buildSVG(size, { muted = false } = {}) {
+  // Thicker strokes at small sizes for legibility
+  const shieldStroke = size <= 16 ? 6 : size <= 32 ? 5 : 4;
+  const noteScale = size <= 16 ? 1.1 : 1;
+  const barStroke = size <= 16 ? 8 : size <= 32 ? 7 : 6;
 
-function buildSVG(size) {
-  const s = size;
-  // Scale stroke widths relative to icon size
-  const strokeW = size <= 16 ? 3.5 : size <= 32 ? 2.8 : 2.2;
-  const radius = size <= 16 ? 2 : 3;
-
-  return `<svg
-  xmlns="http://www.w3.org/2000/svg"
-  width="${s}" height="${s}"
-  viewBox="0 0 100 100"
->
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6c63ff"/>
-      <stop offset="100%" stop-color="#4f46e5"/>
-    </linearGradient>
-    <linearGradient id="shield-fill" x1="0%" y1="0%" x2="100%" y2="110%">
-      <stop offset="0%" stop-color="#7c75ff"/>
-      <stop offset="100%" stop-color="#4338ca"/>
-    </linearGradient>
-  </defs>
-
-  <!-- Background rounded square -->
-  <rect width="100" height="100" rx="${radius * 7}" fill="url(#bg)"/>
-
-  <!-- Shield shape -->
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100" fill="none">
+  <!-- Shield — filled with subtle green, strong outline -->
   <path
-    d="M50 14 L82 27 L82 52 C82 68 66 80 50 87 C34 80 18 68 18 52 L18 27 Z"
-    fill="url(#shield-fill)"
-    stroke="rgba(255,255,255,0.2)"
-    stroke-width="${strokeW * 0.6}"
+    d="M50 4 L94 22 V52 C94 76 74 90 50 98 C26 90 6 76 6 52 V22 Z"
+    fill="#1a7a45"
+    fill-opacity="0.15"
+    stroke="#1a7a45"
+    stroke-width="${shieldStroke}"
+    stroke-linejoin="round"
   />
 
-  <!-- Musical note (simplified at small sizes) -->
-  <g fill="white" opacity="0.95">
-    <!-- Note head 1 -->
-    <ellipse cx="42" cy="62" rx="${size <= 16 ? 6 : 5.5}" ry="${size <= 16 ? 4.5 : 4}" transform="rotate(-15,42,62)"/>
-    <!-- Note stem 1 -->
-    <rect x="${size <= 16 ? 47 : 46.5}" y="38" width="${size <= 16 ? 3.5 : 3}" height="25"/>
-    <!-- Note head 2 -->
-    <ellipse cx="60" cy="58" rx="${size <= 16 ? 6 : 5.5}" ry="${size <= 16 ? 4.5 : 4}" transform="rotate(-15,60,58)"/>
-    <!-- Note stem 2 -->
-    <rect x="${size <= 16 ? 65 : 64.5}" y="34" width="${size <= 16 ? 3.5 : 3}" height="25"/>
-    <!-- Beam connecting stems -->
-    <rect x="46.5" y="38" width="21" height="${size <= 16 ? 4 : 3.5}" rx="1"/>
+  <!-- Musical note — centered, large -->
+  <g transform="translate(${50 - 20 * noteScale}, ${48 - 22 * noteScale}) scale(${noteScale})">
+    <!-- Note head -->
+    <ellipse cx="16" cy="40" rx="10" ry="7" transform="rotate(-15,16,40)" fill="#1a7a45"/>
+    <!-- Stem -->
+    <rect x="24" y="6" width="4" height="35" rx="2" fill="#1a7a45"/>
+    <!-- Flag -->
+    <path d="M28 6 C40 8 42 18 36 26" stroke="#1a7a45" stroke-width="4.5" stroke-linecap="round" fill="none"/>
   </g>
 
-  <!-- Mute slash — diagonal line crossing the note -->
-  <line
-    x1="28" y1="72"
-    x2="75" y2="30"
-    stroke="white"
-    stroke-width="${strokeW * 1.1}"
-    stroke-linecap="round"
-    opacity="0.95"
-  />
-  <!-- Slash shadow for depth -->
-  <line
-    x1="29" y1="73"
-    x2="76" y2="31"
-    stroke="rgba(0,0,0,0.25)"
-    stroke-width="${strokeW * 0.6}"
-    stroke-linecap="round"
-  />
+  ${muted ? `
+  <!-- Red diagonal bar -->
+  <line x1="15" y1="85" x2="85" y2="15"
+    stroke="#ef4444" stroke-width="${barStroke}" stroke-linecap="round"/>
+  ` : ''}
 </svg>`;
 }
 
-// ─── PNG Generation ───────────────────────────────────────────────────────────
-
 async function generateIcons() {
-  // Ensure output directory exists
   fs.mkdirSync(ICONS_DIR, { recursive: true });
 
-  // Try to use 'sharp' (best quality, handles SVG natively)
-  let sharpAvailable = false;
-  try {
-    require.resolve('sharp');
-    sharpAvailable = true;
-  } catch {
-    // sharp not installed
+  try { require.resolve('sharp'); } catch {
+    console.error('sharp is required: npm install sharp --save-dev');
+    process.exit(1);
   }
 
-  if (sharpAvailable) {
-    await generateWithSharp();
-  } else {
-    await generateWithCanvas();
-  }
-}
-
-async function generateWithSharp() {
   const sharp = require('sharp');
-  console.log('Using sharp for icon generation...');
+  console.log('Generating icons...');
 
   for (const size of SIZES) {
-    const svg = buildSVG(size);
-    const outputPath = path.join(ICONS_DIR, `icon${size}.png`);
-
-    await sharp(Buffer.from(svg))
+    await sharp(Buffer.from(buildSVG(size)))
       .resize(size, size)
-      .png({ quality: 100, compressionLevel: 9 })
-      .toFile(outputPath);
-
-    console.log(`✓ Generated icon${size}.png`);
+      .png({ compressionLevel: 9 })
+      .toFile(path.join(ICONS_DIR, `icon${size}.png`));
+    console.log(`  ✓ icon${size}.png`);
   }
-}
-
-async function generateWithCanvas() {
-  let createCanvas, loadImage;
-
-  try {
-    ({ createCanvas, loadImage } = require('canvas'));
-  } catch {
-    console.error(`
-  ────────────────────────────────────────────────────────
-  No SVG→PNG renderer found. Please install one of:
-
-    npm install sharp        (recommended)
-    npm install canvas       (alternative, needs build tools)
-
-  Or manually create these files in assets/icons/:
-    icon16.png, icon32.png, icon48.png, icon128.png
-
-  The SVG source is in scripts/generate-icons.js → buildSVG()
-  ────────────────────────────────────────────────────────
-    `);
-    process.exit(1);
-  }
-
-  console.log('Using canvas for icon generation...');
 
   for (const size of SIZES) {
-    const svg = buildSVG(size);
-    const canvas = createCanvas(size, size);
-    const ctx = canvas.getContext('2d');
-
-    const img = await loadImage(`data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`);
-    ctx.drawImage(img, 0, 0, size, size);
-
-    const outputPath = path.join(ICONS_DIR, `icon${size}.png`);
-    const buffer = canvas.toBuffer('image/png');
-    fs.writeFileSync(outputPath, buffer);
-
-    console.log(`✓ Generated icon${size}.png`);
+    await sharp(Buffer.from(buildSVG(size, { muted: true })))
+      .resize(size, size)
+      .png({ compressionLevel: 9 })
+      .toFile(path.join(ICONS_DIR, `icon${size}-muted.png`));
+    console.log(`  ✓ icon${size}-muted.png`);
   }
+
+  fs.writeFileSync(path.join(ICONS_DIR, 'icon.svg'), buildSVG(128));
+  fs.writeFileSync(path.join(ICONS_DIR, 'icon-muted.svg'), buildSVG(128, { muted: true }));
+  console.log('  ✓ SVG references');
+  console.log('\n✅ Done');
 }
 
-// ─── Also emit a standalone SVG for reference ────────────────────────────────
-
-function emitReferenceSVG() {
-  const svgPath = path.join(ICONS_DIR, 'icon.svg');
-  fs.writeFileSync(svgPath, buildSVG(128));
-  console.log('✓ Generated icon.svg (reference, 128px viewbox)');
-}
-
-// ─── Main ─────────────────────────────────────────────────────────────────────
-
-generateIcons()
-  .then(() => {
-    emitReferenceSVG();
-    console.log('\n✅ All icons generated successfully in assets/icons/');
-  })
-  .catch((err) => {
-    console.error('Icon generation failed:', err);
-    process.exit(1);
-  });
+generateIcons().catch(err => { console.error(err); process.exit(1); });

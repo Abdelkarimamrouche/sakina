@@ -20,4 +20,8 @@
   </g>
 
   
+  <!-- Red diagonal bar -->
+  <line x1="15" y1="85" x2="85" y2="15"
+    stroke="#ef4444" stroke-width="6" stroke-linecap="round"/>
+  
 </svg>

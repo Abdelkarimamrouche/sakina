@@ -1,7 +1,7 @@
 {
-  "name": "music-shield",
-  "version": "1.0.0",
-  "description": "Enterprise-grade Chrome extension that automatically mutes music in YouTube videos while keeping speech and natural sounds",
+  "name": "sakina",
+  "version": "1.3.0",
+  "description": "Sakina — auto mute music extension for the Muslim community",
   "private": true,
   "scripts": {
     "dev": "webpack --config webpack.config.js --mode development --watch",

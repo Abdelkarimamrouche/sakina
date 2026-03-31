@@ -1,4 +1,4 @@
-# 🛡 MusicShield
+# 🛡 Sakina
 
 **Enterprise-grade Chrome extension that automatically mutes music in YouTube videos using on-device AI.**
 
@@ -53,7 +53,7 @@ YouTube video playing
 ## Project Structure
 
 ```
-music-shield/
+sakina/
 ├── manifest.json                  # Chrome MV3 manifest
 ├── webpack.config.js              # Build system
 ├── package.json
@@ -96,7 +96,7 @@ music-shield/
 ### Install
 
 ```bash
-cd music-shield
+cd sakina
 npm install
 ```
 
@@ -135,7 +135,7 @@ All settings are persisted in `chrome.storage.sync` (roams across Chrome profile
 
 ## YAMNet Class Coverage
 
-MusicShield classifies audio as music if any of these YAMNet class scores exceed the threshold:
+Sakina classifies audio as music if any of these YAMNet class scores exceed the threshold:
 
 - **Music genres** (137–272): Pop, Rock, Jazz, Classical, Hip-hop, Electronic, etc.
 - **Instruments** (137–213): Piano, Guitar, Drums, Orchestra, Synthesizer, etc.
