@@ -64,6 +64,7 @@ let _lastFlushedMuteCount    = 0;
 let _lastFrameTimestamp      = 0;
 let _watchdogStartTime       = 0; // when the pipeline became ACTIVE
 let _watchdogInterval        = null;
+let _videoPlayHandler        = null; // resets _lastFrameTimestamp on video resume
 const WATCHDOG_INTERVAL_MS     = 5_000;  // check every 5s
 const WATCHDOG_STALE_THRESHOLD = 6_000;  // if no frame in 6s while playing → stale
 
@@ -474,6 +475,20 @@ function startStatsFlush() {
 function startWatchdog() {
   stopWatchdog();
   _watchdogStartTime = Date.now(); // record when pipeline became active
+
+  // SLEEP/WAKE FIX: Reset frame timestamp when video resumes after pause.
+  // Without this, the watchdog sees msSinceLastFrame = pause_duration (can be minutes)
+  // and incorrectly tears down the pipeline the moment the user presses play.
+  if (_lastVideoEl && !_videoPlayHandler) {
+    _videoPlayHandler = () => {
+      if (_state === State.ACTIVE) {
+        _lastFrameTimestamp = Date.now();
+      }
+    };
+    _lastVideoEl.addEventListener('play', _videoPlayHandler, { passive: true });
+    _lastVideoEl.addEventListener('playing', _videoPlayHandler, { passive: true });
+  }
+
   _watchdogInterval = setInterval(async () => {
     if (_state !== State.ACTIVE || !_pipeline || !_lastVideoEl) return;
 
@@ -506,6 +521,13 @@ function startWatchdog() {
 function stopWatchdog() {
   clearInterval(_watchdogInterval);
   _watchdogInterval = null;
+
+  // SLEEP/WAKE FIX: Remove play listener
+  if (_videoPlayHandler && _lastVideoEl) {
+    _lastVideoEl.removeEventListener('play',    _videoPlayHandler);
+    _lastVideoEl.removeEventListener('playing', _videoPlayHandler);
+  }
+  _videoPlayHandler = null;
 }
 
 // ─── Video Element Watcher ────────────────────────────────────────────────────
