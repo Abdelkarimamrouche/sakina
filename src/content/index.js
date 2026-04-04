@@ -511,9 +511,22 @@ function startWatchdog() {
       : WATCHDOG_STALE_THRESHOLD; // 6s for normal stale frame detection
 
     if (msSinceLastFrame > effectiveThreshold) {
-      console.warn(`[Sakina] Watchdog: no audio frame for ${msSinceLastFrame}ms — reinitializing pipeline`);
-      await teardown();
-      setTimeout(setup, 200);
+      if (ctxSuspended && _lastFrameTimestamp === 0) {
+        // BRAVE FIX: AudioContext is suspended and no frames have ever arrived.
+        // Brave may silently block resume() — re-register gesture listeners
+        // and retry resume() without full teardown. This avoids the infinite
+        // teardown/setup cycle that doesn't help in Brave.
+        console.warn(`[Sakina] Watchdog: AudioContext still suspended after ${msSinceLastFrame}ms — retrying resume`);
+        _pipeline?._ctx?.resume().catch(() => {});
+        _pipeline?._registerGestureListeners();
+        // Reset watchdog start time to give another full grace period
+        _watchdogStartTime = Date.now();
+      } else {
+        // Frames were arriving but stopped — real stale condition, full reinit
+        console.warn(`[Sakina] Watchdog: no audio frame for ${msSinceLastFrame}ms — reinitializing pipeline`);
+        await teardown();
+        setTimeout(setup, 200);
+      }
     }
   }, WATCHDOG_INTERVAL_MS);
 }

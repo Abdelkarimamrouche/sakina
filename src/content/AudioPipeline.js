@@ -44,6 +44,9 @@ export class AudioPipeline {
     /** @type {function|null} One-time gesture handler to resume suspended AudioContext */
     this._gestureHandler = null;
 
+    /** @type {function|null} Called when first audio frame arrives — signals AudioContext is truly running */
+    this._onFirstFrameCallback = null;
+
     /** @type {Float32Array[]} Rolling buffer of raw PCM frames */
     this._sampleBuffer = [];
     this._totalBuffered = 0;
@@ -90,17 +93,16 @@ export class AudioPipeline {
         sourceNodeCache.set(this._video, { source: this._source, ctx: this._ctx });
       }
 
-      // BUG 1 FIX: Permanent AudioContext recovery handlers.
-      // The onstatechange handler auto-resumes if the context suspends for any reason.
-      // Also cleans up gesture listeners once context is running.
+      // BRAVE FIX: onstatechange handler re-registers gesture listeners when context becomes suspended.
+      // We do NOT clean up on 'running' — cleanup happens when first frame arrives in _onAudioProcess.
+      // This is critical for Brave where ctx.state may become 'running' but frames don't flow yet.
       this._ctx.onstatechange = () => {
-        if (this._ctx.state === 'running') {
-          // Context is now running — remove gesture listeners if still active
-          this._removeGestureListeners();
-        } else if (this._ctx.state === 'suspended') {
-          // Context suspended again (e.g. tab switch) — try to resume
+        if (this._ctx.state === 'suspended') {
+          // Context became suspended again (tab switch, Brave policy) — re-register gesture listeners
           this._ctx.resume().catch(() => {});
+          this._registerGestureListeners();
         }
+        // Note: no cleanup on 'running' — cleanup happens when first frame arrives
       };
 
       // Visibility handler: resume on tab focus (common suspension trigger)
@@ -116,41 +118,12 @@ export class AudioPipeline {
         this._ctx.resume().catch(() => {});
       }
 
-      // Gesture handler: resume on user interaction.
-      // Needed when AudioContext is created suspended (browser restoring session
-      // without user gesture). onstatechange alone cannot handle this case because
-      // the context never leaves suspended state — there is no state change to fire on.
-      //
-      // DEFINITIVE FIX: This handler is PERSISTENT — it keeps retrying until
-      // AudioContext is confirmed running. Unlike the previous one-shot handler,
-      // this does NOT remove itself on first gesture. It only removes itself when
-      // ctx.state === 'running' is confirmed via the .then() callback.
-      if (this._ctx.state === 'suspended') {
-        const tryResume = () => {
-          if (!this._ctx) {
-            this._removeGestureListeners();
-            return;
-          }
-          if (this._ctx.state === 'running') {
-            this._removeGestureListeners();
-            return;
-          }
-          this._ctx.resume().then(() => {
-            // resume() resolved — check state and clean up if now running
-            if (this._ctx?.state === 'running') {
-              this._removeGestureListeners();
-            }
-          }).catch(() => {
-            // resume() rejected — keep listeners active for next gesture
-          });
-        };
-
-        this._gestureHandler = tryResume;
-        document.addEventListener('click',      tryResume, { passive: true });
-        document.addEventListener('keydown',    tryResume, { passive: true });
-        document.addEventListener('scroll',     tryResume, { passive: true });
-        document.addEventListener('touchstart', tryResume, { passive: true });
-      }
+      // BRAVE FIX: Register gesture listeners unconditionally.
+      // Brave: ctx.resume() may resolve without ctx.state becoming 'running'.
+      // We do NOT rely on ctx.state for cleanup — instead, we remove listeners
+      // only when the first real audio frame arrives (confirmed in _onAudioProcess).
+      // If the context is already running, listeners will be removed on first frame anyway.
+      this._registerGestureListeners();
 
       // ── Analyser: gives us frequency data for potential future FFT features ──
       this._analyser = this._ctx.createAnalyser();
@@ -205,6 +178,13 @@ export class AudioPipeline {
   // ─── Audio Process Handler ──────────────────────────────────────────────────
 
   _onAudioProcess(event) {
+    // BRAVE FIX: First real frame = AudioContext is confirmed running — safe to remove gesture listeners.
+    // This is the only reliable signal across Chrome, Brave, and other Chromium variants.
+    // We do NOT rely on ctx.state === 'running' because Brave may lie about it.
+    if (this._gestureHandler) {
+      this._removeGestureListeners();
+    }
+
     // Get mono channel (channel 0 only — YAMNet expects mono)
     const channelData = event.inputBuffer.getChannelData(0);
 
@@ -311,11 +291,34 @@ export class AudioPipeline {
     return data;
   }
 
-  // ─── Gesture Listener Cleanup ─────────────────────────────────────────────
+  // ─── Gesture Listener Management ─────────────────────────────────────────────
+
+  /**
+   * Register gesture listeners to resume suspended AudioContext.
+   * BRAVE FIX: We do NOT rely on ctx.state for cleanup — instead, we remove
+   * listeners only when the first real audio frame arrives (confirmed in _onAudioProcess).
+   * This works reliably across Chrome, Brave, and other Chromium variants.
+   */
+  _registerGestureListeners() {
+    // Remove any existing listeners first (prevent duplicates on re-registration)
+    this._removeGestureListeners();
+
+    const tryResume = () => {
+      if (!this._ctx) { this._removeGestureListeners(); return; }
+      // Try to resume regardless of reported state — Brave may lie about state
+      this._ctx.resume().catch(() => {});
+    };
+
+    this._gestureHandler = tryResume;
+    document.addEventListener('click',      tryResume, { passive: true });
+    document.addEventListener('keydown',    tryResume, { passive: true });
+    document.addEventListener('scroll',     tryResume, { passive: true });
+    document.addEventListener('touchstart', tryResume, { passive: true });
+  }
 
   /**
    * Remove all gesture listeners if still active.
-   * Called when AudioContext becomes running or on destroy.
+   * Called when first audio frame arrives or on destroy.
    */
   _removeGestureListeners() {
     if (!this._gestureHandler) return;
