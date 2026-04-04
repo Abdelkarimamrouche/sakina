@@ -1,7 +1,7 @@
 {
   "ext_name":                { "message": "Sakina — Auto Mute Music" },
   "ext_short_name":          { "message": "Sakina" },
-  "ext_description":         { "message": "Automatically detects and mutes music on YouTube, Instagram, Facebook and TikTok using on-device AI. Speech and ambient sounds play normally." },
+  "ext_description":         { "message": "Automatically mutes music on YouTube, Instagram, Facebook & TikTok using on-device AI. Speech plays normally." },
 
   "toggle_enable":           { "message": "Enable Sakina" },
   "toggle_disable":          { "message": "Disable Sakina" },
