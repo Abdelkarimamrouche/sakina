@@ -26,6 +26,7 @@ let settings = {};
 let tabState = null;
 let sessionStats = { totalMutedSeconds: 0, muteSegmentCount: 0 };
 let persistentStats = {};
+let _loadingPoller = null;
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
@@ -56,6 +57,35 @@ async function getTabState() {
       resolve(response);
     });
   });
+}
+
+function startLoadingPoller() {
+  if (_loadingPoller) return; // já está rodando
+
+  _loadingPoller = setInterval(async () => {
+    try {
+      const newState = await getTabState();
+      // Continua polling enquanto classifier está loading ou state é LOADING
+      if (!newState || newState.classifierLoading || newState.state === EXTENSION_STATE.LOADING) {
+        return; // ainda carregando — tenta de novo em 1s
+      }
+      // Modelo carregou — atualiza e para
+      clearInterval(_loadingPoller);
+      _loadingPoller = null;
+      tabState = newState;
+      if (newState.stats) sessionStats = newState.stats;
+      render();
+    } catch {
+      // Content script não respondeu — tenta de novo em 1s
+    }
+  }, 1000);
+}
+
+function stopLoadingPoller() {
+  if (_loadingPoller) {
+    clearInterval(_loadingPoller);
+    _loadingPoller = null;
+  }
 }
 
 // ─── Render ───────────────────────────────────────────────────────────────────
@@ -154,6 +184,14 @@ function render() {
       <a class="footer-link" href="#" id="btn-options">${t('btn_advanced')}</a>
     </div>
   `;
+
+  // Se extensão está em loading state, inicia poller para auto-refresh
+  const isCurrentlyLoading = (tabState?.classifierLoading || tabState?.state === EXTENSION_STATE.LOADING);
+  if (isCurrentlyLoading) {
+    startLoadingPoller();
+  } else {
+    stopLoadingPoller(); // garante que para se não estiver mais em loading
+  }
 
   attachListeners();
 }
@@ -266,3 +304,4 @@ function formatTime(seconds) {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+window.addEventListener('unload', stopLoadingPoller);
