@@ -92,9 +92,13 @@ export class AudioPipeline {
 
       // BUG 1 FIX: Permanent AudioContext recovery handlers.
       // The onstatechange handler auto-resumes if the context suspends for any reason.
-      // This replaces the one-shot gesture listeners which only worked once.
+      // Also cleans up gesture listeners once context is running.
       this._ctx.onstatechange = () => {
-        if (this._ctx.state === 'suspended') {
+        if (this._ctx.state === 'running') {
+          // Context is now running — remove gesture listeners if still active
+          this._removeGestureListeners();
+        } else if (this._ctx.state === 'suspended') {
+          // Context suspended again (e.g. tab switch) — try to resume
           this._ctx.resume().catch(() => {});
         }
       };
@@ -112,26 +116,40 @@ export class AudioPipeline {
         this._ctx.resume().catch(() => {});
       }
 
-      // Gesture handler: resume on first user interaction.
+      // Gesture handler: resume on user interaction.
       // Needed when AudioContext is created suspended (browser restoring session
       // without user gesture). onstatechange alone cannot handle this case because
       // the context never leaves suspended state — there is no state change to fire on.
+      //
+      // DEFINITIVE FIX: This handler is PERSISTENT — it keeps retrying until
+      // AudioContext is confirmed running. Unlike the previous one-shot handler,
+      // this does NOT remove itself on first gesture. It only removes itself when
+      // ctx.state === 'running' is confirmed via the .then() callback.
       if (this._ctx.state === 'suspended') {
-        this._gestureHandler = () => {
-          if (this._ctx?.state === 'suspended') {
-            this._ctx.resume().catch(() => {});
+        const tryResume = () => {
+          if (!this._ctx) {
+            this._removeGestureListeners();
+            return;
           }
-          // Remove all gesture listeners after first interaction
-          document.removeEventListener('click',      this._gestureHandler);
-          document.removeEventListener('keydown',    this._gestureHandler);
-          document.removeEventListener('scroll',     this._gestureHandler);
-          document.removeEventListener('touchstart', this._gestureHandler);
-          this._gestureHandler = null;
+          if (this._ctx.state === 'running') {
+            this._removeGestureListeners();
+            return;
+          }
+          this._ctx.resume().then(() => {
+            // resume() resolved — check state and clean up if now running
+            if (this._ctx?.state === 'running') {
+              this._removeGestureListeners();
+            }
+          }).catch(() => {
+            // resume() rejected — keep listeners active for next gesture
+          });
         };
-        document.addEventListener('click',      this._gestureHandler, { passive: true });
-        document.addEventListener('keydown',    this._gestureHandler, { passive: true });
-        document.addEventListener('scroll',     this._gestureHandler, { passive: true });
-        document.addEventListener('touchstart', this._gestureHandler, { passive: true });
+
+        this._gestureHandler = tryResume;
+        document.addEventListener('click',      tryResume, { passive: true });
+        document.addEventListener('keydown',    tryResume, { passive: true });
+        document.addEventListener('scroll',     tryResume, { passive: true });
+        document.addEventListener('touchstart', tryResume, { passive: true });
       }
 
       // ── Analyser: gives us frequency data for potential future FFT features ──
@@ -293,23 +311,64 @@ export class AudioPipeline {
     return data;
   }
 
+  // ─── Gesture Listener Cleanup ─────────────────────────────────────────────
+
+  /**
+   * Remove all gesture listeners if still active.
+   * Called when AudioContext becomes running or on destroy.
+   */
+  _removeGestureListeners() {
+    if (!this._gestureHandler) return;
+    document.removeEventListener('click',      this._gestureHandler);
+    document.removeEventListener('keydown',    this._gestureHandler);
+    document.removeEventListener('scroll',     this._gestureHandler);
+    document.removeEventListener('touchstart', this._gestureHandler);
+    this._gestureHandler = null;
+  }
+
+  // ─── Wait for AudioContext Running ───────────────────────────────────────────
+
+  /**
+   * Returns a promise that resolves when the AudioContext is running,
+   * or after timeoutMs if it never becomes running.
+   * Used to ensure pipeline is actually processing audio before marking ACTIVE.
+   *
+   * @param {number} timeoutMs
+   * @returns {Promise<boolean>} true if running, false if timed out
+   */
+  waitUntilContextRunning(timeoutMs = 3000) {
+    if (!this._ctx || this._ctx.state === 'running') return Promise.resolve(true);
+
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        resolve(false); // timed out — context still suspended
+      }, timeoutMs);
+
+      const check = () => {
+        if (!this._ctx) { clearTimeout(timer); resolve(false); return; }
+        if (this._ctx.state === 'running') { clearTimeout(timer); resolve(true); }
+      };
+
+      // Listen for state change
+      const origStateChange = this._ctx.onstatechange;
+      this._ctx.onstatechange = (e) => {
+        origStateChange?.call(this._ctx, e);
+        check();
+      };
+    });
+  }
+
   // ─── Cleanup ───────────────────────────────────────────────────────────────
 
   destroy() {
-    // BUG 1 FIX: Clean up visibility handler
+    // Clean up visibility handler
     if (this._visibilityHandler) {
       document.removeEventListener('visibilitychange', this._visibilityHandler);
       this._visibilityHandler = null;
     }
 
     // Remove gesture listeners if they were registered
-    if (this._gestureHandler) {
-      document.removeEventListener('click',      this._gestureHandler);
-      document.removeEventListener('keydown',    this._gestureHandler);
-      document.removeEventListener('scroll',     this._gestureHandler);
-      document.removeEventListener('touchstart', this._gestureHandler);
-      this._gestureHandler = null;
-    }
+    this._removeGestureListeners();
 
     // FIRST: ensure audio keeps flowing to speakers
     // This is critical because createMediaElementSource() captures ALL audio

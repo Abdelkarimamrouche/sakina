@@ -282,6 +282,18 @@ async function initPipelineOnPlay(videoEl) {
 
   if (!videoEl.paused) {
     await doInit();
+    // If AudioContext is still suspended after init (no user gesture available),
+    // wait briefly for the persistent gesture handler to resume it.
+    // This prevents marking ACTIVE when no audio will actually be processed.
+    if (_pipeline && _pipeline._ctx?.state === 'suspended') {
+      const running = await _pipeline.waitUntilContextRunning(3000);
+      if (!running) {
+        // Context still suspended after 3s — gesture handler is active and will
+        // resume it on next user interaction. Pipeline is still ACTIVE and watchdog
+        // will give it extended time (see Correction 3 below).
+        console.info('[Sakina] AudioContext suspended — waiting for user gesture to resume');
+      }
+    }
     return;
   }
 
@@ -474,7 +486,16 @@ function startWatchdog() {
     // AudioContext is suspended and NO frames have ever arrived.
     const refTime = _lastFrameTimestamp > 0 ? _lastFrameTimestamp : _watchdogStartTime;
     const msSinceLastFrame = Date.now() - refTime;
-    if (msSinceLastFrame > WATCHDOG_STALE_THRESHOLD) {
+
+    // DEFINITIVE FIX: If no frames have ever arrived and the AudioContext is suspended,
+    // use an extended threshold — the gesture handler is working to resume it.
+    // Don't tear down prematurely; the user just needs to scroll or click.
+    const ctxSuspended = _pipeline?._ctx?.state === 'suspended';
+    const effectiveThreshold = (_lastFrameTimestamp === 0 && ctxSuspended)
+      ? 30_000  // 30s grace for user gesture when AudioContext is suspended
+      : WATCHDOG_STALE_THRESHOLD; // 6s for normal stale frame detection
+
+    if (msSinceLastFrame > effectiveThreshold) {
       console.warn(`[Sakina] Watchdog: no audio frame for ${msSinceLastFrame}ms — reinitializing pipeline`);
       await teardown();
       setTimeout(setup, 200);
