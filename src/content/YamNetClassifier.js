@@ -15,6 +15,9 @@
 import * as tf from '@tensorflow/tfjs';
 import {
   YAMNET_MUSIC_CLASS_RANGE,
+  YAMNET_INSTRUMENT_CLASS_RANGE,
+  MIN_INSTRUMENT_SCORE_FOR_MUSIC,
+  INSTRUMENT_THRESHOLD_STRICT,
   YAMNET_SINGING_CLASSES,
   DEFAULT_MUSIC_THRESHOLD,
   YAMNET_FRAME_SAMPLES,
@@ -190,11 +193,16 @@ export class YamNetClassifier {
   /**
    * Interpret YAMNet's 521-class score vector.
    *
+   * Uses instrument presence as a gate for music detection:
+   * - Music range (132-276) only triggers if instruments (132-193) are detected
+   * - This prevents Quran recitation (no instruments) from being classified
+   *   as music even when it scores high on "Middle Eastern music" (class 207)
+   *
    * @param {Float32Array|number[]} scores
    * @returns {ClassificationResult}
    */
   _interpretScores(scores) {
-    // Find global top class
+    // ── 1. Find global top class (for display/logging only) ──────────────────
     let topIndex = 0;
     let topScore = 0;
     for (let i = 0; i < scores.length; i++) {
@@ -204,21 +212,51 @@ export class YamNetClassifier {
       }
     }
 
-    // Find max music score (instruments + genres range)
-    const { min: musicMin, max: musicMax } = YAMNET_MUSIC_CLASS_RANGE;
-    let maxMusicScore = 0;
-    for (let i = musicMin; i <= musicMax; i++) {
-      if (scores[i] > maxMusicScore) maxMusicScore = scores[i];
+    // ── 2. Detect musical instruments (132–193) ───────────────────────────────
+    // This is the KEY gate: real music has instruments, Quran recitation does not.
+    const { min: instrMin, max: instrMax } = YAMNET_INSTRUMENT_CLASS_RANGE;
+    let maxInstrumentScore = 0;
+    for (let i = instrMin; i <= instrMax; i++) {
+      if (scores[i] > maxInstrumentScore) maxInstrumentScore = scores[i];
     }
 
-    // Optionally include singing/vocals (excludes Chant/Mantra)
+    // When muteSinging is disabled, the user wants to hear vocal content.
+    // Use a stricter threshold so ambient acoustics in Quran recordings
+    // do not accidentally trigger the instrument gate.
+    const instrumentThreshold = this.muteSinging
+      ? MIN_INSTRUMENT_SCORE_FOR_MUSIC  // 0.05 — catches subtle background music
+      : INSTRUMENT_THRESHOLD_STRICT;    // 0.15 — only clearly audible instruments
+    const hasInstruments = maxInstrumentScore >= instrumentThreshold;
+
+    // ── 3. Music range score (132–276) — gated by instrument presence ─────────
+    // If NO instruments detected → score is zeroed out.
+    // This prevents Quran recitation from triggering the music range
+    // even when YAMNet scores it high on "Middle Eastern music" (class 207).
+    let maxMusicScore = 0;
+    if (hasInstruments) {
+      const { min: musicMin, max: musicMax } = YAMNET_MUSIC_CLASS_RANGE;
+      for (let i = musicMin; i <= musicMax; i++) {
+        if (scores[i] > maxMusicScore) maxMusicScore = scores[i];
+      }
+    }
+
+    // ── 4. Singing/vocal score — gated by instruments like music ───────────────
+    // YAMNET_SINGING_CLASSES excludes Choir (25), Chant (27), and Mantra (28).
+    //
+    // KEY INSIGHT: Apply the same instrument gate to singing!
+    //   - Singing WITH instruments = music (pop, rock, etc.) → mute
+    //   - Singing WITHOUT instruments = possibly religious recitation → DON'T mute
+    //
+    // This protects Quran recitation which has melody (tajweed) but NO instruments.
+    // Without this gate, Quran triggers "Singing" (class 24) and gets muted.
     let maxSingingScore = 0;
-    if (this.muteSinging) {
+    if (this.muteSinging && hasInstruments) {
       for (const i of YAMNET_SINGING_CLASSES) {
         if (scores[i] > maxSingingScore) maxSingingScore = scores[i];
       }
     }
 
+    // ── 5. Final decision ─────────────────────────────────────────────────────
     const effectiveScore = Math.max(maxMusicScore, maxSingingScore);
     const isMusic = effectiveScore >= this.threshold;
 

@@ -1,368 +1,568 @@
 /**
  * Sakina — Content Script
  *
- * Injected into YouTube, Instagram, Facebook, and TikTok tabs.
- * Orchestrates the full pipeline:
- *   1. Detects the current platform via platforms.js adapter
- *   2. Detects video element and play events (platform-agnostic)
- *   3. Loads YAMNet model (lazy, first play only)
- *   4. Wires AudioPipeline + MuteController
- *   5. Handles SPA navigation for all platforms
- *   6. Communicates state to background service worker
- *   7. Responds to settings changes from popup
- *
- * Each platform uses a different SPA navigation pattern and video
- * selector — all of that is encapsulated in platforms.js adapters.
+ * State machine with SSOT:
+ *   IDLE        → no pipeline, waiting for video
+ *   SETTING_UP  → waitForVideo + loadModel + initialize (mutex locked)
+ *   ACTIVE      → pipeline running, classifying audio
+ *   TEARING_DOWN→ cleanup in progress (mutex locked)
+ *   DISABLED    → extension off, listeners active, no pipeline
  */
 
 import { AudioPipeline } from './AudioPipeline.js';
 import { YamNetClassifier } from './YamNetClassifier.js';
 import { MuteController } from './MuteController.js';
+import { UnmuteBadge, getPagePattern } from './UnmuteBadge.js';
 import { detectPlatform, waitForVideo, findBestVideo } from './platforms.js';
 import {
   getSettings, onSettingsChange,
   addMutedSeconds, incrementMuteCount, incrementVideosProcessed,
-  getAllowlist, addActivityEntry, addPlatformMutedSeconds,
+  getAllowlist, addToAllowlist, addActivityEntry, addPlatformMutedSeconds,
 } from '../shared/storage.js';
-import { MSG, EXTENSION_STATE, STORAGE_KEYS, PLATFORM_TO_STORAGE_KEY, MIN_VIDEO_DURATION_SECONDS } from '../shared/constants.js';
+import {
+  MSG, EXTENSION_STATE, STORAGE_KEYS,
+  PLATFORM_TO_STORAGE_KEY, MIN_VIDEO_DURATION_SECONDS,
+} from '../shared/constants.js';
 
-// ─── Module-level State ───────────────────────────────────────────────────────
+// ─── State Machine ────────────────────────────────────────────────────────────
 
-/** Single classifier instance — shared across video sessions */
+const State = Object.freeze({
+  IDLE:         'IDLE',
+  SETTING_UP:   'SETTING_UP',   // mutex locked — setup in progress
+  ACTIVE:       'ACTIVE',       // pipeline running
+  TEARING_DOWN: 'TEARING_DOWN', // mutex locked — teardown in progress
+  DISABLED:     'DISABLED',     // extension off
+});
+
+// ─── Module-level Singletons ──────────────────────────────────────────────────
+
 const classifier = new YamNetClassifier();
 
-/** Current active pipeline (recreated per video) */
-let pipeline = null;
+// ─── Module-level State (SSOT) ────────────────────────────────────────────────
 
-/** Current mute controller */
-let controller = null;
+let _state       = State.IDLE;
+let _pipeline    = null;
+let _controller  = null;
+let _settings    = {};
+let _allowlist   = [];
+let _platform    = null;
+let _lastVideoEl = null;
+let _statsFlushInterval = null;
+let _videoObserver      = null;
+let _removeNavListeners = null;
+let _navDebounceTimer   = null; // Bug 5 fix: debounce navigation events
+let _badge              = null; // UnmuteBadge instance
+let _sessionMuteDisabled = false; // true after user clicks "Undo" for this session
+// First-load recovery: limits poll-timeout retries to 1 per video session
+let _setupRetryCount = 0;
 
-/** Current settings */
-let settings = {};
+// BUG 2 FIX: Track last flushed stats to compute delta on periodic flush
+let _lastFlushedMutedSeconds = 0;
+let _lastFlushedMuteCount    = 0;
 
-/** Whether extension is enabled */
-let isEnabled = true;
+// BUG 4 FIX: Watchdog to detect stale audio frames
+let _lastFrameTimestamp      = 0;
+let _watchdogStartTime       = 0; // when the pipeline became ACTIVE
+let _watchdogInterval        = null;
+const WATCHDOG_INTERVAL_MS     = 5_000;  // check every 5s
+const WATCHDOG_STALE_THRESHOLD = 6_000;  // if no frame in 6s while playing → stale
 
-/** Whether we're currently initialized on a video */
-let isActive = false;
+// ─── State Transitions ────────────────────────────────────────────────────────
 
-/** Last video element we attached to */
-let lastVideoEl = null;
+function canSetup() {
+  return _state === State.IDLE;
+}
 
-/** Stats flush interval handle */
-let statsFlushInterval = null;
+function canTeardown() {
+  return _state === State.ACTIVE || _state === State.SETTING_UP;
+}
 
-/** MutationObserver watching for video element changes */
-let videoObserver = null;
-
-/** Platform adapter for the current tab */
-let platform = null;
-
-/** Cleanup function returned by platform.setupNavigation() */
-let removeNavListeners = null;
-
-/** Allowlist of URLs/patterns to never mute */
-let allowlist = [];
+function setState(next) {
+  console.info(`[Sakina] State: ${_state} → ${next}`);
+  _state = next;
+}
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
 
 async function bootstrap() {
-  // Detect which platform we're on. If unsupported, bail out silently.
-  platform = detectPlatform();
-  if (!platform) {
-    console.info('[Sakina] Unsupported platform, exiting.');
-    return;
-  }
+  _platform = detectPlatform();
+  if (!_platform) return;
 
-  console.info(`[Sakina] Loaded on ${platform.name}:`, location.href);
+  console.info(`[Sakina] Loaded on ${_platform.name}:`, location.href);
 
-  [settings, allowlist] = await Promise.all([getSettings(), getAllowlist()]);
-  isEnabled = settings[STORAGE_KEYS.ENABLED];
+  [_settings, _allowlist] = await Promise.all([getSettings(), getAllowlist()]);
 
-  if (!isEnabled) {
-    console.info('[Sakina] Extension disabled, standing by.');
-    return;
-  }
-
-  // Check if this platform is enabled
-  const platformKey = PLATFORM_TO_STORAGE_KEY[platform.name.toLowerCase()];
-  if (platformKey && settings[platformKey] === false) {
-    console.info(`[Sakina] ${platform.name} is disabled in settings, standing by.`);
-    return;
-  }
-
-  // Check if current URL is in allowlist
-  if (isUrlAllowlisted(location.href)) {
-    console.info('[Sakina] URL is allowlisted, standing by.');
-    return;
-  }
-
-  // Register SPA navigation listener (platform-specific).
-  removeNavListeners = platform.setupNavigation(onNavigation);
-
-  // Watch for settings changes from popup.
+  // Always register listeners — even when disabled, we need to hear re-enable
+  _removeNavListeners = _platform.setupNavigation(onNavigation);
   onSettingsChange(handleSettingsChange);
-
-  // Listen for messages from background / popup.
   chrome.runtime.onMessage.addListener(handleMessage);
 
-  // Initial setup if there's already a video page loaded.
-  if (platform.isVideoPage()) {
-    await setupForCurrentPage();
-  }
-}
+  // BUG 5 FIX: Handle tab visibility changes for IDLE recovery
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (_state !== State.IDLE) return;
+    if (!_platform?.isVideoPage()) return;
+    if (!_settings[STORAGE_KEYS.ENABLED]) return;
+    if (isAllowlisted(location.href)) return;
 
-// ─── SPA Navigation ───────────────────────────────────────────────────────────
-
-async function onNavigation() {
-  console.info(`[Sakina:${platform.name}] Navigation →`, location.href);
-  await teardown();
-
-  if (platform.isVideoPage() && isEnabled) {
-    // Brief delay so the platform can finish rendering the new video element.
-    setTimeout(setupForCurrentPage, 350);
-  }
-}
-
-// ─── Page Setup ───────────────────────────────────────────────────────────────
-
-async function setupForCurrentPage() {
-  if (isActive) return;
-
-  const videoEl = await waitForVideo(platform);
-  if (!videoEl) {
-    console.warn(`[Sakina:${platform.name}] No video element found.`);
-    return;
-  }
-
-  if (videoEl === lastVideoEl && isActive) return;
-
-  lastVideoEl = videoEl;
-
-  // Skip very short clips.
-  if (videoEl.duration && videoEl.duration < MIN_VIDEO_DURATION_SECONDS) {
-    console.info(`[Sakina:${platform.name}] Skipping short video (${videoEl.duration}s)`);
-    return;
-  }
-
-  console.info(`[Sakina:${platform.name}] Attaching to video. Duration:`, videoEl.duration);
-
-  // ── Load YAMNet (lazy) ──────────────────────────────────────────────────────
-  if (!classifier.isReady && !classifier.isLoading) {
-    reportStatus(EXTENSION_STATE.LOADING);
-    try {
-      await classifier.load();
-    } catch (err) {
-      reportStatus(EXTENSION_STATE.ERROR);
-      console.error('[Sakina] Failed to load classifier:', err);
-      return;
-    }
-  } else if (classifier.isLoading) {
-    reportStatus(EXTENSION_STATE.LOADING);
-    await new Promise(resolve => {
-      const check = setInterval(() => {
-        if (!classifier.isLoading) { clearInterval(check); resolve(); }
-      }, 200);
-    });
-    if (!classifier.isReady) return;
-  }
-
-  classifier.updateSettings({
-    threshold: settings[STORAGE_KEYS.THRESHOLD],
-    muteSinging: settings[STORAGE_KEYS.MUTE_SINGING],
+    console.info('[Sakina] Tab became visible — attempting setup from IDLE');
+    setup();
   });
 
-  // ── Wire AudioPipeline ─────────────────────────────────────────────────────
-  pipeline = new AudioPipeline(videoEl);
+  const isEnabled = _settings[STORAGE_KEYS.ENABLED];
+  const platformKey = PLATFORM_TO_STORAGE_KEY[_platform.name.toLowerCase()];
+  const isPlatformEnabled = !platformKey || _settings[platformKey] !== false;
 
-  pipeline.onAudioChunk = async (frame) => {
-    if (!isEnabled || !controller) return;
-    try {
-      const result = await classifier.classify(frame);
-      controller.processResult(result);
-    } catch (err) {
-      if (isActive) console.warn('[Sakina] Classification error:', err.message);
+  if (!isEnabled || !isPlatformEnabled) {
+    setState(State.DISABLED);
+    reportStatus(EXTENSION_STATE.DISABLED);
+    updateBadge(EXTENSION_STATE.DISABLED);
+    console.info('[Sakina] Disabled, standing by.');
+    return;
+  }
+
+  if (isAllowlisted(location.href)) {
+    console.info('[Sakina] URL allowlisted, standing by.');
+    return;
+  }
+
+  if (_platform.isVideoPage()) {
+    await setup();
+  }
+}
+
+// ─── Navigation (with debounce — Bug 5 fix) ───────────────────────────────────
+
+function onNavigation() {
+  // Debounce: YouTube fires yt-navigate-finish + yt-page-data-updated
+  // for the same navigation. Only process the first one within 200ms.
+  clearTimeout(_navDebounceTimer);
+  _navDebounceTimer = setTimeout(async () => {
+    console.info(`[Sakina:${_platform.name}] Navigation →`, location.href);
+    await teardown();
+
+    const isEnabled = _settings[STORAGE_KEYS.ENABLED];
+    if (_platform.isVideoPage() && isEnabled && !isAllowlisted(location.href)) {
+      setTimeout(setup, 350);
     }
-  };
+  }, 200);
+}
 
-  // ── Wire MuteController ────────────────────────────────────────────────────
-  controller = new MuteController(pipeline, classifier);
+// ─── Setup (with mutex — Bug 2 fix) ───────────────────────────────────────────
 
-  controller.onStateChange = (state) => {
-    reportStatus(state);
-    updateBadge(state);
-  };
+async function setup() {
+  // Mutex: only one setup at a time
+  if (!canSetup()) {
+    console.info(`[Sakina] setup() skipped — state is ${_state}`);
+    return;
+  }
+  setState(State.SETTING_UP);
 
-  controller.onClassification = ({ isMusic, confidence, topClass }) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.debug(
-        `[Sakina:${platform.name}] ${isMusic ? '🎵' : '💬'} ${topClass} (${(confidence * 100).toFixed(1)}%)`
-      );
+  try {
+    const videoEl = await waitForVideo(_platform);
+    if (!videoEl) {
+      console.warn(`[Sakina:${_platform.name}] No video found.`);
+      setState(State.IDLE);
+      return;
     }
-  };
 
-  // ── Initialize pipeline on first play ─────────────────────────────────────
-  const initPipeline = async () => {
+    // Guard: if state changed while waiting (e.g. teardown was called)
+    if (_state !== State.SETTING_UP) {
+      console.info('[Sakina] setup() aborted — state changed during waitForVideo');
+      return;
+    }
+
+    if (videoEl.duration && isFinite(videoEl.duration) && videoEl.duration < MIN_VIDEO_DURATION_SECONDS) {
+      console.info(`[Sakina] Skipping short video (${videoEl.duration}s)`);
+      setState(State.IDLE);
+      return;
+    }
+
+    _lastVideoEl = videoEl;
+
+    // Load model
+    if (!classifier.isReady && !classifier.isLoading) {
+      reportStatus(EXTENSION_STATE.LOADING);
+      await classifier.load();
+    } else if (classifier.isLoading) {
+      reportStatus(EXTENSION_STATE.LOADING);
+      await waitForClassifier();
+    }
+
+    if (!classifier.isReady || _state !== State.SETTING_UP) {
+      reportStatus(EXTENSION_STATE.READY);
+      setState(State.IDLE);
+      return;
+    }
+
+    classifier.updateSettings({
+      threshold:   _settings[STORAGE_KEYS.THRESHOLD],
+      muteSinging: _settings[STORAGE_KEYS.MUTE_SINGING],
+    });
+
+    // Wire pipeline
+    _pipeline = new AudioPipeline(videoEl);
+    _pipeline.onAudioChunk = async (frame) => {
+      // BUG 4 FIX: Track last frame time for watchdog
+      _lastFrameTimestamp = Date.now();
+
+      if (_state !== State.ACTIVE || !_controller) return;
+      // Skip classification when session mute is disabled (user clicked "Undo")
+      if (_sessionMuteDisabled) return;
+      try {
+        const result = await classifier.classify(frame);
+        _controller.processResult(result);
+      } catch (err) {
+        if (_state === State.ACTIVE) console.warn('[Sakina] Classification error:', err.message);
+      }
+    };
+
+    _controller = new MuteController(_pipeline, classifier);
+    _controller.onStateChange = (s) => {
+      reportStatus(s);
+      updateBadge(s);
+      // Show/hide unmute badge based on mute state
+      if (!_badge) return;
+      if (s === EXTENSION_STATE.MUTED && !_sessionMuteDisabled) {
+        _badge.show();
+      } else {
+        _badge.hide();
+      }
+    };
+
+    // Initialize the floating unmute badge
+    _badge = new UnmuteBadge({
+      getPlayerContainer: () =>
+        document.querySelector(_platform.playerContainerSelector) ?? document.body,
+
+      onSessionUnmute: () => {
+        _sessionMuteDisabled = true;
+        if (_controller) _controller.reset();
+        _badge.showConfirmation('Unmuted for this session');
+      },
+
+      onAllowlist: async () => {
+        const pattern = getPagePattern();
+        await addToAllowlist(pattern);
+        _allowlist = await getAllowlist();
+        _sessionMuteDisabled = true;
+        if (_controller) _controller.reset();
+        _badge.showConfirmation('Added to allowlist');
+      },
+    });
+
+    // Initialize on play
+    await initPipelineOnPlay(videoEl);
+
+  } catch (err) {
+    console.error('[Sakina] setup() failed:', err);
+    reportStatus(EXTENSION_STATE.ERROR);
+    setState(State.IDLE);
+  }
+}
+
+async function initPipelineOnPlay(videoEl) {
+  const doInit = async () => {
+    // Final guard before initializing
+    if (_state !== State.SETTING_UP) return;
     try {
-      await pipeline.initialize();
-      isActive = true;
+      await _pipeline.initialize();
+      setState(State.ACTIVE);
       incrementVideosProcessed();
       reportStatus(EXTENSION_STATE.READY);
+      startStatsFlush();
+      startWatchdog(); // BUG 4 FIX: Start watchdog after pipeline init
+      watchVideoElement();
     } catch (err) {
       console.error('[Sakina] Pipeline init failed:', err);
       reportStatus(EXTENSION_STATE.ERROR);
+      setState(State.IDLE);
     }
   };
 
-  console.info(`[Sakina:${platform.name}] Video paused=${videoEl.paused}, readyState=${videoEl.readyState}, src=${videoEl.src?.substring(0, 60) || videoEl.currentSrc?.substring(0, 60) || 'none'}`);
-
   if (!videoEl.paused) {
-    await initPipeline();
-  } else {
-    // Listen for both 'play' and 'playing' — some platforms (TikTok)
-    // may start playback without firing 'play' reliably.
-    const onceInit = () => {
-      videoEl.removeEventListener('play', onceInit);
-      videoEl.removeEventListener('playing', onceInit);
-      clearTimeout(fallbackTimer);
-      initPipeline();
-    };
-    videoEl.addEventListener('play', onceInit, { once: true });
-    videoEl.addEventListener('playing', onceInit, { once: true });
-
-    // Fallback: poll every 500ms for up to 5s — TikTok may swap or
-    // start the video element late.
-    let fallbackAttempts = 0;
-    const fallbackTimer = setInterval(() => {
-      fallbackAttempts++;
-      const v = videoEl.paused ? findBestVideo(platform) : videoEl;
-      if (v && !v.paused) {
-        clearInterval(fallbackTimer);
-        videoEl.removeEventListener('play', onceInit);
-        videoEl.removeEventListener('playing', onceInit);
-        if (v !== videoEl) {
-          console.info(`[Sakina:${platform.name}] Fallback found a different playing video`);
-          pipeline._video = v;
-          lastVideoEl = v;
-        }
-        initPipeline();
-      } else if (fallbackAttempts >= 10) {
-        clearInterval(fallbackTimer);
-        console.warn(`[Sakina:${platform.name}] Fallback: no playing video found after 5s`);
-      }
-    }, 500);
+    await doInit();
+    return;
   }
 
-  watchVideoElement();
-  startStatsFlush();
+  // Wait for play event — Bug 4 fix: use proper cleanup
+  let resolved = false;
+
+  const onPlay = async () => {
+    if (resolved) return;
+    resolved = true;
+    cleanup();
+    await doInit();
+  };
+
+  const cleanup = () => {
+    videoEl.removeEventListener('play', onPlay);
+    videoEl.removeEventListener('playing', onPlay);
+    clearInterval(pollInterval);
+  };
+
+  videoEl.addEventListener('play', onPlay, { once: true });
+  videoEl.addEventListener('playing', onPlay, { once: true });
+
+  // Fallback poll — Bug 4 fix: clearInterval (not clearTimeout)
+  let attempts = 0;
+  const pollInterval = setInterval(() => {
+    attempts++;
+    if (_state !== State.SETTING_UP) {
+      cleanup();
+      return;
+    }
+    const v = findBestVideo(_platform);
+    if (v && !v.paused) {
+      if (v !== videoEl) {
+        _pipeline._video = v;
+        _lastVideoEl = v;
+      }
+      resolved = true;
+      cleanup();
+      doInit();
+    } else if (attempts >= 10) {
+      cleanup();
+      console.warn(`[Sakina] No playing video after 5s`);
+      reportStatus(EXTENSION_STATE.READY);
+      setState(State.IDLE);
+
+      // First-load recovery: if the model just finished loading, the video
+      // may not have started playing yet. Schedule one retry after 2s.
+      // _setupRetryCount prevents infinite loops — max 1 retry per video session.
+      // teardown() resets _setupRetryCount so each new video gets a fresh retry.
+      if (_setupRetryCount === 0) {
+        _setupRetryCount++;
+        setTimeout(() => {
+          if (
+            _state === State.IDLE &&
+            classifier.isReady &&
+            _platform?.isVideoPage() &&
+            _settings[STORAGE_KEYS.ENABLED] !== false &&
+            !isAllowlisted(location.href)
+          ) {
+            console.info('[Sakina] Retrying setup — model ready, waiting for video to play');
+            setup();
+          }
+        }, 2000);
+      }
+    }
+  }, 500);
 }
 
-// ─── Stats Flushing ───────────────────────────────────────────────────────────
+// BUG 3 FIX: Add timeout to prevent infinite wait on failed model load
+function waitForClassifier(timeoutMs = 45_000) {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const check = setInterval(() => {
+      if (!classifier.isLoading) {
+        clearInterval(check);
+        resolve();
+        return;
+      }
+      if (Date.now() - start >= timeoutMs) {
+        clearInterval(check);
+        reject(new Error('YAMNet model load timed out after 45s'));
+      }
+    }, 200);
+  });
+}
 
+// ─── Teardown (with mutex — Bug 1 fix) ────────────────────────────────────────
+
+async function teardown() {
+  if (!canTeardown()) {
+    // Already idle/disabled/tearing down — nothing to do
+    return;
+  }
+  setState(State.TEARING_DOWN);
+
+  clearTimeout(_navDebounceTimer);
+  clearInterval(_statsFlushInterval);
+  _statsFlushInterval = null;
+  stopWatchdog(); // BUG 4 FIX: Stop watchdog on teardown
+
+  if (_videoObserver) {
+    _videoObserver.disconnect();
+    _videoObserver = null;
+  }
+
+  // BUG 2 FIX: Use delta-based stats persistence (not cumulative)
+  if (_controller) {
+    const { totalMutedSeconds, muteSegmentCount } = _controller.getSessionStats();
+
+    const secondsDelta = totalMutedSeconds - _lastFlushedMutedSeconds;
+    const countDelta   = muteSegmentCount  - _lastFlushedMuteCount;
+
+    if (secondsDelta > 0) {
+      await addMutedSeconds(secondsDelta);
+      if (_platform) {
+        await addActivityEntry(_platform.name.toLowerCase(), secondsDelta);
+        await addPlatformMutedSeconds(_platform.name.toLowerCase(), secondsDelta);
+      }
+    }
+    if (countDelta > 0) await incrementMuteCount(countDelta);
+
+    _controller.reset();
+    _controller = null;
+  }
+
+  // BUG 2 FIX: Reset trackers after stats are persisted
+  _lastFlushedMutedSeconds = 0;
+  _lastFlushedMuteCount = 0;
+
+  // BUG 4 FIX: Reset frame timestamp
+  _lastFrameTimestamp = 0;
+  _watchdogStartTime  = 0;
+
+  if (_pipeline) {
+    _pipeline.destroy();
+    _pipeline = null;
+  }
+
+  // Destroy badge and reset session flag
+  if (_badge) {
+    _badge.destroy();
+    _badge = null;
+  }
+  _sessionMuteDisabled = false;
+  _setupRetryCount = 0;
+
+  _lastVideoEl = null;
+  reportStatus(EXTENSION_STATE.READY);
+  setState(State.IDLE);
+}
+
+// ─── Stats Flush ──────────────────────────────────────────────────────────────
+
+// BUG 2 FIX: Use delta-based flushing to avoid double-counting
 function startStatsFlush() {
-  clearInterval(statsFlushInterval);
-  statsFlushInterval = setInterval(async () => {
-    if (!controller) return;
-    const { totalMutedSeconds, muteSegmentCount } = controller.getSessionStats();
-    if (totalMutedSeconds > 0) {
-      await addMutedSeconds(totalMutedSeconds);
-      if (muteSegmentCount > 0) await incrementMuteCount(muteSegmentCount);
+  clearInterval(_statsFlushInterval);
+  _statsFlushInterval = setInterval(async () => {
+    if (_state !== State.ACTIVE || !_controller) return;
+    const { totalMutedSeconds, muteSegmentCount } = _controller.getSessionStats();
+
+    const secondsDelta = totalMutedSeconds - _lastFlushedMutedSeconds;
+    const countDelta   = muteSegmentCount  - _lastFlushedMuteCount;
+
+    if (secondsDelta > 0) {
+      await addMutedSeconds(secondsDelta);
+      _lastFlushedMutedSeconds = totalMutedSeconds;
+    }
+    if (countDelta > 0) {
+      await incrementMuteCount(countDelta);
+      _lastFlushedMuteCount = muteSegmentCount;
     }
   }, 30_000);
 }
 
+// ─── Watchdog ─────────────────────────────────────────────────────────────────
+
+// BUG 4 FIX: Detect stale audio frames when video is playing
+function startWatchdog() {
+  stopWatchdog();
+  _watchdogStartTime = Date.now(); // record when pipeline became active
+  _watchdogInterval = setInterval(async () => {
+    if (_state !== State.ACTIVE || !_pipeline || !_lastVideoEl) return;
+
+    const videoEl = _lastVideoEl;
+    const isPlaying = !videoEl.paused && !videoEl.ended && videoEl.readyState >= 2;
+    if (!isPlaying) return; // paused — expected silence, not a bug
+
+    // Use _lastFrameTimestamp if frames have arrived, otherwise measure
+    // from when the pipeline became active. This catches the case where
+    // AudioContext is suspended and NO frames have ever arrived.
+    const refTime = _lastFrameTimestamp > 0 ? _lastFrameTimestamp : _watchdogStartTime;
+    const msSinceLastFrame = Date.now() - refTime;
+    if (msSinceLastFrame > WATCHDOG_STALE_THRESHOLD) {
+      console.warn(`[Sakina] Watchdog: no audio frame for ${msSinceLastFrame}ms — reinitializing pipeline`);
+      await teardown();
+      setTimeout(setup, 200);
+    }
+  }, WATCHDOG_INTERVAL_MS);
+}
+
+function stopWatchdog() {
+  clearInterval(_watchdogInterval);
+  _watchdogInterval = null;
+}
+
 // ─── Video Element Watcher ────────────────────────────────────────────────────
 
-/**
- * Watch for the platform swapping out the video element under us.
- * This is common on TikTok (scroll) and YouTube Shorts (swipe).
- */
 function watchVideoElement() {
-  if (videoObserver) {
-    videoObserver.disconnect();
-    videoObserver = null;
-  }
+  if (_videoObserver) { _videoObserver.disconnect(); _videoObserver = null; }
 
-  videoObserver = new MutationObserver(async () => {
-    const currentVideo = findBestVideo(platform);
-    if (currentVideo && currentVideo !== lastVideoEl) {
-      console.info(`[Sakina:${platform.name}] Video element swapped, reinitializing…`);
+  _videoObserver = new MutationObserver(async () => {
+    if (_state !== State.ACTIVE) return;
+    const current = findBestVideo(_platform);
+    if (current && current !== _lastVideoEl) {
+      console.info(`[Sakina:${_platform.name}] Video swapped, reinitializing…`);
       await teardown();
-      setTimeout(setupForCurrentPage, 100);
+      setTimeout(setup, 100);
     }
   });
 
-  const container =
-    document.querySelector(platform.playerContainerSelector) ?? document.body;
-
-  videoObserver.observe(container, { childList: true, subtree: true });
+  const container = document.querySelector(_platform.playerContainerSelector) ?? document.body;
+  _videoObserver.observe(container, { childList: true, subtree: true });
 }
 
-// ─── Teardown ─────────────────────────────────────────────────────────────────
+// ─── Settings Handler (Bug 1 fix — properly async) ────────────────────────────
 
-async function teardown() {
-  clearInterval(statsFlushInterval);
-  statsFlushInterval = null;
-
-  if (videoObserver) {
-    videoObserver.disconnect();
-    videoObserver = null;
-  }
-
-  if (controller) {
-    const { totalMutedSeconds, muteSegmentCount } = controller.getSessionStats();
-    if (totalMutedSeconds > 0) {
-      await addMutedSeconds(totalMutedSeconds);
-      // Log activity and platform-specific stats
-      if (platform) {
-        await addActivityEntry(platform.name.toLowerCase(), totalMutedSeconds);
-        await addPlatformMutedSeconds(platform.name.toLowerCase(), totalMutedSeconds);
-      }
-    }
-    if (muteSegmentCount > 0) await incrementMuteCount(muteSegmentCount);
-    controller.reset();
-    controller = null;
-  }
-
-  if (pipeline) {
-    pipeline.destroy();
-    pipeline = null;
-  }
-
-  isActive    = false;
-  lastVideoEl = null;
-}
-
-// ─── Settings Changes ─────────────────────────────────────────────────────────
-
-function handleSettingsChange(changes) {
+async function handleSettingsChange(changes) {
   let needsClassifierUpdate = false;
 
   if (STORAGE_KEYS.ENABLED in changes) {
-    isEnabled = changes[STORAGE_KEYS.ENABLED].newValue;
-    if (!isEnabled) {
-      pipeline?.unmute();
+    const enabled = changes[STORAGE_KEYS.ENABLED].newValue;
+    _settings[STORAGE_KEYS.ENABLED] = enabled;
+
+    if (!enabled) {
+      await teardown();           // ← properly awaited
+      setState(State.DISABLED);
       reportStatus(EXTENSION_STATE.DISABLED);
     } else {
+      if (_state === State.DISABLED) setState(State.IDLE);
       reportStatus(EXTENSION_STATE.READY);
-      if (!isActive) setupForCurrentPage();
+      if (_platform?.isVideoPage() && !isAllowlisted(location.href)) {
+        await setup();            // ← properly awaited
+      }
+    }
+  }
+
+  // Platform toggle changes
+  for (const key of Object.values(PLATFORM_TO_STORAGE_KEY)) {
+    if (key in changes) {
+      _settings[key] = changes[key].newValue;
+      const platformKey = PLATFORM_TO_STORAGE_KEY[_platform?.name?.toLowerCase()];
+      if (key === platformKey) {
+        if (!changes[key].newValue) {
+          await teardown();
+          setState(State.DISABLED);
+        } else if (_state === State.DISABLED) {
+          setState(State.IDLE);
+          if (_platform?.isVideoPage()) await setup();
+        }
+      }
     }
   }
 
   if (STORAGE_KEYS.THRESHOLD in changes) {
-    settings[STORAGE_KEYS.THRESHOLD] = changes[STORAGE_KEYS.THRESHOLD].newValue;
+    _settings[STORAGE_KEYS.THRESHOLD] = changes[STORAGE_KEYS.THRESHOLD].newValue;
     needsClassifierUpdate = true;
   }
 
   if (STORAGE_KEYS.MUTE_SINGING in changes) {
-    settings[STORAGE_KEYS.MUTE_SINGING] = changes[STORAGE_KEYS.MUTE_SINGING].newValue;
+    _settings[STORAGE_KEYS.MUTE_SINGING] = changes[STORAGE_KEYS.MUTE_SINGING].newValue;
     needsClassifierUpdate = true;
+  }
+
+  if (STORAGE_KEYS.SHOW_BADGE in changes) {
+    _settings[STORAGE_KEYS.SHOW_BADGE] = changes[STORAGE_KEYS.SHOW_BADGE].newValue;
   }
 
   if (needsClassifierUpdate && classifier.isReady) {
     classifier.updateSettings({
-      threshold: settings[STORAGE_KEYS.THRESHOLD],
-      muteSinging: settings[STORAGE_KEYS.MUTE_SINGING],
+      threshold:   _settings[STORAGE_KEYS.THRESHOLD],
+      muteSinging: _settings[STORAGE_KEYS.MUTE_SINGING],
     });
   }
 }
@@ -371,23 +571,35 @@ function handleSettingsChange(changes) {
 
 function handleMessage(message, sender, sendResponse) {
   switch (message.type) {
-    case MSG.TOGGLE_EXTENSION:
-      isEnabled = message.enabled;
-      if (!isEnabled && pipeline?.isMuted) pipeline.unmute();
+
+    case MSG.TOGGLE_EXTENSION: {
+      const enable = message.enabled;
+      _settings[STORAGE_KEYS.ENABLED] = enable;
+      if (!enable) {
+        teardown().then(() => {
+          setState(State.DISABLED);
+          reportStatus(EXTENSION_STATE.DISABLED);
+        });
+      } else {
+        if (_state === State.DISABLED) setState(State.IDLE);
+        reportStatus(EXTENSION_STATE.READY);
+        if (_platform?.isVideoPage() && !isAllowlisted(location.href)) setup();
+      }
       sendResponse({ ok: true });
       break;
+    }
 
     case MSG.GET_TAB_STATE:
       sendResponse({
-        isActive,
-        isEnabled,
-        platform: platform?.name ?? 'Unknown',
-        isMuted: pipeline?.isMuted ?? false,
-        classifierReady: classifier.isReady,
+        state:            stateToExtensionState(),
+        isActive:         _state === State.ACTIVE,
+        isEnabled:        _settings[STORAGE_KEYS.ENABLED] !== false,
+        platform:         _platform?.name ?? 'Unknown',
+        isMuted:          _pipeline?.isMuted ?? false,
+        classifierReady:  classifier.isReady,
         classifierLoading: classifier.isLoading,
-        state: controller?.state ?? (isEnabled ? EXTENSION_STATE.READY : EXTENSION_STATE.DISABLED),
-        stats: controller?.getSessionStats() ?? null,
-        performance: classifier.isReady ? classifier.getPerformanceStats() : null,
+        stats:            _controller?.getSessionStats() ?? null,
+        performance:      classifier.isReady ? classifier.getPerformanceStats() : null,
       });
       break;
 
@@ -397,52 +609,41 @@ function handleMessage(message, sender, sendResponse) {
   return true;
 }
 
+function stateToExtensionState() {
+  switch (_state) {
+    case State.DISABLED:     return EXTENSION_STATE.DISABLED;
+    case State.SETTING_UP:   return EXTENSION_STATE.LOADING;
+    case State.TEARING_DOWN: return EXTENSION_STATE.LOADING;
+    case State.ACTIVE:       return _pipeline?.isMuted ? EXTENSION_STATE.MUTED : EXTENSION_STATE.LISTENING;
+    default:                 return EXTENSION_STATE.READY;
+  }
+}
+
 // ─── Communication Helpers ────────────────────────────────────────────────────
 
 function reportStatus(state) {
-  chrome.runtime.sendMessage({
-    type: MSG.CLASSIFIER_STATUS,
-    state,
-    tabId: null,
-  }).catch(() => {});
+  chrome.runtime.sendMessage({ type: MSG.CLASSIFIER_STATUS, state, tabId: null }).catch(() => {});
 }
 
 function updateBadge(state) {
-  if (!settings[STORAGE_KEYS.SHOW_BADGE]) return;
-
+  if (!_settings[STORAGE_KEYS.SHOW_BADGE]) return;
   const badgeMap = {
     [EXTENSION_STATE.MUTED]:     { text: '',    color: '#ef4444' },
     [EXTENSION_STATE.LISTENING]: { text: '',    color: '#22c55e' },
     [EXTENSION_STATE.LOADING]:   { text: '⋯',  color: '#f59e0b' },
-    [EXTENSION_STATE.DISABLED]:  { text: 'OFF', color: '#6b7280' },
+    [EXTENSION_STATE.DISABLED]:  { text: 'off', color: '#6b7280' },
     [EXTENSION_STATE.ERROR]:     { text: '!',   color: '#ef4444' },
   };
-
   const badge = badgeMap[state] ?? badgeMap[EXTENSION_STATE.LISTENING];
-  chrome.runtime.sendMessage({
-    type: MSG.MUTE_STATE_CHANGED,
-    badgeText: badge.text,
-    badgeColor: badge.color,
-  }).catch(() => {});
+  chrome.runtime.sendMessage({ type: MSG.MUTE_STATE_CHANGED, badgeText: badge.text, badgeColor: badge.color }).catch(() => {});
 }
 
-// ─── Allowlist Matching ────────────────────────────────────────────────────────
+// ─── Allowlist ────────────────────────────────────────────────────────────────
 
-/**
- * Check if a URL matches any entry in the allowlist.
- * Supports simple substring matching (e.g., "youtube.com/@channelName").
- * @param {string} url
- * @returns {boolean}
- */
-function isUrlAllowlisted(url) {
-  if (!allowlist || allowlist.length === 0) return false;
-  const normalizedUrl = url.toLowerCase();
-  return allowlist.some(pattern => {
-    const normalizedPattern = pattern.toLowerCase().trim();
-    if (!normalizedPattern) return false;
-    // Simple substring match (handles channel names, paths, etc.)
-    return normalizedUrl.includes(normalizedPattern);
-  });
+function isAllowlisted(url) {
+  if (!_allowlist?.length) return false;
+  const lower = url.toLowerCase();
+  return _allowlist.some(p => p && lower.includes(p.toLowerCase().trim()));
 }
 
 // ─── Start ────────────────────────────────────────────────────────────────────

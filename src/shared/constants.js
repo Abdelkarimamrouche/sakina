@@ -15,9 +15,41 @@
  * Full class map: https://github.com/tensorflow/models/blob/master/research/audioset/yamnet/yamnet_class_map.csv
  */
 export const YAMNET_MUSIC_CLASS_RANGE = { min: 132, max: 276 };
-// Excludes 27 (Chant) and 28 (Mantra) — these capture religious
-// recitation (Quran, prayers, etc.) which should not be muted.
-export const YAMNET_SINGING_CLASSES = new Set([24, 25, 26, 29, 30]);
+// Excludes 25 (Choir), 27 (Chant) and 28 (Mantra) — these capture religious
+// recitation (Quran, prayers, jama'a, etc.) which should not be muted.
+// Choir (25) is removed because it activates for group Quran recitation (tarawih, jama'a).
+export const YAMNET_SINGING_CLASSES = new Set([24, 26, 29, 30]);
+
+// ─── Quran / Recitation Protection ────────────────────────────────────────────
+
+/**
+ * YAMNet classes representing real musical instruments (132–193).
+ * Covers: strings, keyboards, percussion, brass, woodwinds.
+ *
+ * Key insight: Quran recitation has ZERO instrument presence.
+ * Regular music almost always scores > 0.05 on these classes.
+ */
+export const YAMNET_INSTRUMENT_CLASS_RANGE = { min: 132, max: 193 };
+
+/**
+ * Minimum instrument score required to classify audio as music.
+ * If no instruments detected above this threshold, the audio is likely
+ * vocal recitation (Quran, chant, a cappella) and should NOT be muted
+ * via the music range.
+ *
+ * Set intentionally low (0.05) to catch even faint background music.
+ * Pure recitation typically scores < 0.02 on instrument classes.
+ */
+export const MIN_INSTRUMENT_SCORE_FOR_MUSIC = 0.05;
+
+/**
+ * Stricter instrument threshold used when muteSinging = false.
+ * When the user disables singing mute, they want to hear vocal content.
+ * Raise the gate so only clearly audible instruments trigger the music range.
+ * Quran recitation with mosque reverb typically scores 0.02–0.08 on instrument
+ * classes. This threshold ensures it does not pass.
+ */
+export const INSTRUMENT_THRESHOLD_STRICT = 0.15;
 
 /** YAMNet requires 16kHz mono audio input */
 export const YAMNET_SAMPLE_RATE = 16000;
@@ -155,5 +187,5 @@ export const PLATFORM_TO_STORAGE_KEY = {
 
 // ─── Misc ─────────────────────────────────────────────────────────────────────
 
-export const EXTENSION_VERSION = '1.3.0';
+export const EXTENSION_VERSION = '1.5.8';
 export const MIN_VIDEO_DURATION_SECONDS = 3; // Don't process very short clips

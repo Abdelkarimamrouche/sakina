@@ -25,9 +25,6 @@ export class MuteController {
     this._pipeline = pipeline;
     this._classifier = classifier;
 
-    /** @type {boolean[]} Recent classification results (true = music) */
-    this._window = [];
-
     this._consecutiveMusicFrames = 0;
     this._consecutiveNonMusicFrames = 0;
 

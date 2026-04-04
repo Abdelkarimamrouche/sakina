@@ -148,7 +148,7 @@ function renderStats() {
   el('stat-muted-time').textContent = formatTime(muted);
   el('stat-mute-count').textContent = muteCount.toLocaleString();
   el('stat-videos').textContent = videos.toLocaleString();
-  el('stat-accuracy').textContent = '94%'; // Placeholder - would need real tracking
+  el('stat-accuracy').textContent = '—'; // No accuracy tracking implemented
 
   // Platform breakdown
   const total = Object.values(statsByPlatform).reduce((a, b) => a + b, 0);

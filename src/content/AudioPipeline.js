@@ -38,6 +38,12 @@ export class AudioPipeline {
     this._processor = null;
     this._silentGain = null; // keeps ScriptProcessor alive without audible output
 
+    /** @type {function|null} Visibility change handler for AudioContext recovery */
+    this._visibilityHandler = null;
+
+    /** @type {function|null} One-time gesture handler to resume suspended AudioContext */
+    this._gestureHandler = null;
+
     /** @type {Float32Array[]} Rolling buffer of raw PCM frames */
     this._sampleBuffer = [];
     this._totalBuffered = 0;
@@ -72,6 +78,10 @@ export class AudioPipeline {
         const cached = sourceNodeCache.get(this._video);
         this._source = cached.source;
         this._ctx = cached.ctx;
+        // CRITICAL: Disconnect source from any previous connections (e.g., passthrough
+        // from destroy()). Otherwise source will be connected to BOTH the old path
+        // (direct to destination) AND the new analysis graph, and mute won't work.
+        this._source.disconnect();
       } else {
         this._ctx = new AudioContext({
           latencyHint: 'playback',
@@ -80,26 +90,48 @@ export class AudioPipeline {
         sourceNodeCache.set(this._video, { source: this._source, ctx: this._ctx });
       }
 
-      // Resume AudioContext without blocking — on some platforms (TikTok)
-      // there's no user gesture yet, so resume() would hang forever.
-      // We set up everything first, then resume. If still suspended,
-      // a user interaction will resume it automatically.
+      // BUG 1 FIX: Permanent AudioContext recovery handlers.
+      // The onstatechange handler auto-resumes if the context suspends for any reason.
+      // This replaces the one-shot gesture listeners which only worked once.
+      this._ctx.onstatechange = () => {
+        if (this._ctx.state === 'suspended') {
+          this._ctx.resume().catch(() => {});
+        }
+      };
+
+      // Visibility handler: resume on tab focus (common suspension trigger)
+      this._visibilityHandler = () => {
+        if (document.visibilityState === 'visible' && this._ctx?.state === 'suspended') {
+          this._ctx.resume().catch(() => {});
+        }
+      };
+      document.addEventListener('visibilitychange', this._visibilityHandler);
+
+      // Initial resume attempt for suspended-at-creation case
       if (this._ctx.state === 'suspended') {
         this._ctx.resume().catch(() => {});
-        // Auto-resume on first user interaction with the page
-        const resumeOnGesture = () => {
-          if (this._ctx && this._ctx.state === 'suspended') {
+      }
+
+      // Gesture handler: resume on first user interaction.
+      // Needed when AudioContext is created suspended (browser restoring session
+      // without user gesture). onstatechange alone cannot handle this case because
+      // the context never leaves suspended state — there is no state change to fire on.
+      if (this._ctx.state === 'suspended') {
+        this._gestureHandler = () => {
+          if (this._ctx?.state === 'suspended') {
             this._ctx.resume().catch(() => {});
           }
-          document.removeEventListener('click', resumeOnGesture);
-          document.removeEventListener('keydown', resumeOnGesture);
-          document.removeEventListener('touchstart', resumeOnGesture);
-          document.removeEventListener('scroll', resumeOnGesture);
+          // Remove all gesture listeners after first interaction
+          document.removeEventListener('click',      this._gestureHandler);
+          document.removeEventListener('keydown',    this._gestureHandler);
+          document.removeEventListener('scroll',     this._gestureHandler);
+          document.removeEventListener('touchstart', this._gestureHandler);
+          this._gestureHandler = null;
         };
-        document.addEventListener('click', resumeOnGesture, { once: true });
-        document.addEventListener('keydown', resumeOnGesture, { once: true });
-        document.addEventListener('touchstart', resumeOnGesture, { once: true });
-        document.addEventListener('scroll', resumeOnGesture, { once: true });
+        document.addEventListener('click',      this._gestureHandler, { passive: true });
+        document.addEventListener('keydown',    this._gestureHandler, { passive: true });
+        document.addEventListener('scroll',     this._gestureHandler, { passive: true });
+        document.addEventListener('touchstart', this._gestureHandler, { passive: true });
       }
 
       // ── Analyser: gives us frequency data for potential future FFT features ──
@@ -264,21 +296,45 @@ export class AudioPipeline {
   // ─── Cleanup ───────────────────────────────────────────────────────────────
 
   destroy() {
+    // BUG 1 FIX: Clean up visibility handler
+    if (this._visibilityHandler) {
+      document.removeEventListener('visibilitychange', this._visibilityHandler);
+      this._visibilityHandler = null;
+    }
+
+    // Remove gesture listeners if they were registered
+    if (this._gestureHandler) {
+      document.removeEventListener('click',      this._gestureHandler);
+      document.removeEventListener('keydown',    this._gestureHandler);
+      document.removeEventListener('scroll',     this._gestureHandler);
+      document.removeEventListener('touchstart', this._gestureHandler);
+      this._gestureHandler = null;
+    }
+
+    // FIRST: ensure audio keeps flowing to speakers
+    // This is critical because createMediaElementSource() captures ALL audio
+    // from the video element — if we just disconnect, the video goes silent.
+    if (this._source && this._ctx) {
+      this._source.disconnect();
+      this._source.connect(this._ctx.destination);
+    }
+
+    // NOW safe to clean up the rest
     if (this._processor) {
       this._processor.onaudioprocess = null;
       this._processor.disconnect();
     }
-    if (this._source) this._source.disconnect();
     if (this._analyser) this._analyser.disconnect();
     if (this._gain) this._gain.disconnect();
     if (this._silentGain) this._silentGain.disconnect();
     // Do NOT close the AudioContext — the MediaElementSourceNode is permanently
     // bound to it. Closing would make the source unusable on re-navigation.
+    // Do NOT disconnect _source — it's now connected directly to destination.
 
     this._sampleBuffer = [];
     this._totalBuffered = 0;
     this._initialized = false;
     this.onAudioChunk = null;
-    console.info('[Sakina:pipeline] Destroyed.');
+    console.info('[Sakina:pipeline] Destroyed — audio passthrough active.');
   }
 }
