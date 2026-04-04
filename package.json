@@ -1,6 +1,6 @@
 {
   "name": "sakina",
-  "version": "1.3.0",
+  "version": "1.5.10",
   "description": "Sakina — auto mute music extension for the Muslim community",
   "private": true,
   "scripts": {
