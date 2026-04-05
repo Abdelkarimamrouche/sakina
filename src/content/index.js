@@ -282,6 +282,12 @@ async function initPipelineOnPlay(videoEl) {
       startWatchdog(); // BUG 4 FIX: Start watchdog after pipeline init
       watchVideoElement();
     } catch (err) {
+      // Handle incompatible video silently — not a real error, just skip
+      if (err.message?.includes('INCOMPATIBLE_VIDEO')) {
+        console.info('[Sakina] Video incompatible with Web Audio interception — skipping.');
+        setState(State.IDLE);
+        return;
+      }
       console.error('[Sakina] Pipeline init failed:', err);
       reportStatus(EXTENSION_STATE.ERROR);
       setState(State.IDLE);

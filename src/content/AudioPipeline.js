@@ -190,7 +190,10 @@ export class AudioPipeline {
       console.info('[Sakina:pipeline] Initialized. Sample rate:', this._ctx.sampleRate);
 
     } catch (err) {
-      console.error('[Sakina:pipeline] Failed to initialize:', err);
+      // INCOMPATIBLE_VIDEO is handled silently — not a real error
+      if (!err.message?.includes('INCOMPATIBLE_VIDEO')) {
+        console.error('[Sakina:pipeline] Failed to initialize:', err);
+      }
       this.destroy();
       throw err;
     }
