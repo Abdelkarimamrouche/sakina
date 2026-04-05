@@ -27,6 +27,11 @@ import {
 // can only be called ONCE per element, ever. Reuse across pipeline re-creations.
 const sourceNodeCache = new WeakMap();
 
+// Track video elements that are already owned by the page's Web Audio API.
+// These elements cannot have a second MediaElementSourceNode created for them.
+// Common on TikTok which uses Web Audio API internally.
+const incompatibleVideoElements = new WeakSet();
+
 export class AudioPipeline {
   /** @param {HTMLVideoElement} videoElement */
   constructor(videoElement) {
@@ -89,8 +94,24 @@ export class AudioPipeline {
         this._ctx = new AudioContext({
           latencyHint: 'playback',
         });
-        this._source = this._ctx.createMediaElementSource(this._video);
-        sourceNodeCache.set(this._video, { source: this._source, ctx: this._ctx });
+        try {
+          this._source = this._ctx.createMediaElementSource(this._video);
+          sourceNodeCache.set(this._video, { source: this._source, ctx: this._ctx });
+        } catch (err) {
+          if (err instanceof DOMException && err.name === 'InvalidStateError') {
+            // This video element was already connected to a MediaElementSourceNode
+            // by the page's own Web Audio API usage (common on TikTok).
+            // A video element can only have ONE MediaElementSource — ever.
+            // Mark it as incompatible so we don't retry, and throw a descriptive error.
+            console.warn('[Sakina:pipeline] Video element already captured by page Web Audio API — skipping.');
+            incompatibleVideoElements.add(this._video);
+            // Close the unused AudioContext we just created
+            this._ctx.close().catch(() => {});
+            this._ctx = null;
+            throw new Error('INCOMPATIBLE_VIDEO: page owns this MediaElementSource');
+          }
+          throw err; // re-throw other errors
+        }
       }
 
       // BRAVE FIX: onstatechange handler re-registers gesture listeners when context becomes suspended.
@@ -359,6 +380,18 @@ export class AudioPipeline {
         check();
       };
     });
+  }
+
+  // ─── Static Methods ─────────────────────────────────────────────────────────
+
+  /**
+   * Returns true if this video element is known to be incompatible
+   * (already connected to a MediaElementSource by the page itself).
+   * @param {HTMLVideoElement} videoEl
+   * @returns {boolean}
+   */
+  static isIncompatible(videoEl) {
+    return incompatibleVideoElements.has(videoEl);
   }
 
   // ─── Cleanup ───────────────────────────────────────────────────────────────

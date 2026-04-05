@@ -187,5 +187,5 @@ export const PLATFORM_TO_STORAGE_KEY = {
 
 // ─── Misc ─────────────────────────────────────────────────────────────────────
 
-export const EXTENSION_VERSION = '1.5.12';
+export const EXTENSION_VERSION = '1.5.13';
 export const MIN_VIDEO_DURATION_SECONDS = 3; // Don't process very short clips

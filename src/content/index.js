@@ -181,6 +181,13 @@ async function setup() {
 
     _lastVideoEl = videoEl;
 
+    // Skip video elements already owned by the page's Web Audio API (e.g. TikTok)
+    if (AudioPipeline.isIncompatible(videoEl)) {
+      console.info('[Sakina] Video element is incompatible (page owns MediaElementSource) — skipping.');
+      setState(State.IDLE);
+      return;
+    }
+
     // Load model
     if (!classifier.isReady && !classifier.isLoading) {
       reportStatus(EXTENSION_STATE.LOADING);
